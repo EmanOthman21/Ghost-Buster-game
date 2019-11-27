@@ -1,0 +1,46 @@
+MENU MACRO 
+;{ OPEN VEDIO MODE
+    MOV AX,4F02H
+    MOV BX,105H
+    INT 10H
+;}
+;{ CLEAR THE PAGE
+    MOV AX,0600H
+    MOV BH,0
+    MOV CX,0
+    MOV DX,184FH
+    INT 10H
+;}
+
+;{ CURSUR = (53,25)
+    MOV AH,2
+    MOV DX,1935H
+    INT 10H
+;}
+;{
+    MOV AH,9
+    LEA DX,MENUITEM1
+    INT 21H
+;}
+;{ CURSUR = (53,27)
+    MOV AH,2
+    MOV DX,1B35H
+    INT 10H
+;}
+;{
+    MOV AH,9
+    LEA DX,MENUITEM2
+    INT 21H
+;}
+
+;{ CURSUR = (53,29)
+    MOV AH,2
+    MOV DX,1D35H
+    INT 10H
+;}
+;{
+    MOV AH,9
+    LEA DX,MENUITEM3
+    INT 21H
+;}
+ENDM MENU
