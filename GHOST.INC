@@ -1,5 +1,5 @@
 GHOSTWORD MACRO
-LOCAL ROW, COL, CON, CON2, CLM, RW, D, C 
+LOCAL ROW, COL, CON, CON2, CLM, RW, D, C, GMODC, GMODR
 ;GHOSTBUSTERS
 ;{ THIS BLOCK DRAW GHOST WORD 
     ;INITAL POINT
@@ -64,13 +64,27 @@ LOCAL ROW, COL, CON, CON2, CLM, RW, D, C
     CMP CX,410
     JNZ ROW    
     ;}
+    ;{ MODIFICATION TO 'G'
+        MOV CX,420
+        MOV DX,280
+        GMODR:
+            GMODC:
+                INT 10H
+                INC CX
+                CMP CX,440
+            JNZ GMODC
+        MOV CX,420
+        INC DX
+        CMP DX,290
+        JNZ GMODR    
+    ;}
     ; BACK TO INTAIL POINT TO DRAW HORIZONTAL 
     MOV CX,400
     MOV DX,250
     ;{ THIS BLOCK JUST DRAW HORIZONTAL LINES OF GHOST WORD
     CLM: 
         RW:
-        ;{ HORIZONTAL LINS OF 'D'
+        ;{ HORIZONTAL LINS OF 'G'
             INT 10H
             ADD DX,50
             INT 10H
