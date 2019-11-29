@@ -1,60 +1,23 @@
 INCLUDE MENU.INC
 INCLUDE GHOST.INC
 INCLUDE BUSTERS.INC
-clearscreen macro 
-push ax
-push bx
-push cx
-push dx
-mov ax, 0600h
-mov bh, 07
-mov cx, 0
-mov dl, 255
-mov dh, 255
-int 10h
-pop dx
-pop cx
-pop bx
-pop ax
-endm  
-
-deletechar macro row, col 
-
-mov bx, row
-mov ah, 2
-mov dl, bl
-mov bx, col
-mov dh, bl
-int 10h
-
-mov ah, 9     
-mov bh, 0
-mov al, 42
-mov cx, 1
-mov bl, 00h
-int 10h
-                   
-endm 
-
-
-
-                    .MODEL COMPACT;TINY   :data+code = 64KB    
-                                ;SMALL  :data = 64KB and code = 64KB
-                                ;MEDIUM :data = 64KB but no code restriction
-                                ;COMPACT:code = 64KB but no data restriction
-                                ;LARGE  :Single set of data can not exceed 64KB
-                                ;HUGE   :No restriction
+                    .MODEL COMPACT;TINY   :DATA+CODE = 64KB    
+                                ;SMALL  :DATA = 64KB AND CODE = 64KB
+                                ;MEDIUM :DATA = 64KB BUT NO CODE RESTRICTION
+                                ;COMPACT:CODE = 64KB BUT NO DATA RESTRICTION
+                                ;LARGE  :SINGLE SET OF DATA CAN NOT EXCEED 64KB
+                                ;HUGE   :NO RESTRICTION
 ;------------------------------------------------------
-                    .STACK 64   ;64 BYTES for stack      
+                    .STACK 64   ;64 BYTES FOR STACK      
 ;------------------------------------------------------                    
                     .DATA                           
                     
-buffer db 0                    
-startposxplayer1 dw 550
-startposyplayer1 dw 150                    
-orientationplayer1 DB 3
+BUFFER DB 0                    
+STARTPOSXPLAYER1 DW 550
+STARTPOSYPLAYER1 DW 150                    
+ORIENTATIONPLAYER1 DB 3
 
-Bitmapleftplayer1 DB 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+BITMAPLEFTPLAYER1 DB 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 DB 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 DB 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 DB 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
@@ -180,7 +143,7 @@ DB 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 DB 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 DB 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 
-Bitmapupleftplayer1 DB 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+BITMAPUPLEFTPLAYER1 DB 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 DB 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 DB 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 DB 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
@@ -306,7 +269,7 @@ DB 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 DB 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 DB 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 
-Bitmapupplayer1 DB 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+BITMAPUPPLAYER1 DB 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 DB 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 DB 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 DB 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 7, 7, 0, 0, 0, 0
@@ -432,7 +395,7 @@ DB 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 DB 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 DB 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 
-Bitmapdownleftplayer1 DB 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+BITMAPDOWNLEFTPLAYER1 DB 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 DB 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 DB 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 DB 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0
@@ -558,7 +521,7 @@ DB 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 DB 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 DB 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 
-Bitmapdownplayer1 DB 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+BITMAPDOWNPLAYER1 DB 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 DB 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 DB 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 DB 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
@@ -685,10 +648,10 @@ DB 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 DB 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 
 
-startposxplayer2 dw 50
-startposyplayer2 dw 150                    
-orientationplayer2 DB 3
-Bitmapupplayer2  DB 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+STARTPOSXPLAYER2 DW 50
+STARTPOSYPLAYER2 DW 150                    
+ORIENTATIONPLAYER2 DB 3
+BITMAPUPPLAYER2  DB 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 DB 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 DB 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 4, 0
 DB 0, 4, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 7, 7, 0, 0, 0, 0
@@ -814,7 +777,7 @@ DB 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 DB 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 DB 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 
-Bitmapdownplayer2  DB 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+BITMAPDOWNPLAYER2  DB 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 DB 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 DB 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 DB 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
@@ -940,7 +903,7 @@ DB 0, 4, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 DB 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 DB 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 
-Bitmaprightplayer2 DB 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+BITMAPRIGHTPLAYER2 DB 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 DB 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 DB 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 DB 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
@@ -1066,7 +1029,7 @@ DB 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 DB 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 DB 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 
-Bitmapdownrightplayer2 DB 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+BITMAPDOWNRIGHTPLAYER2 DB 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 DB 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 DB 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 DB 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
@@ -1192,7 +1155,7 @@ DB 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 DB 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 DB 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 
-Bitmapuprightplayer2 DB 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+BITMAPUPRIGHTPLAYER2 DB 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 DB 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 DB 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 DB 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
@@ -1318,13 +1281,13 @@ DB 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 DB 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 DB 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 
-tank dw 10, 10 ,11, 10, 12, 10, 13, 10, 14, 10, 15, 10   ;tank pixels 
-dw 10, 11 ,11, 11, 12, 11, 13, 11, 14, 11, 15, 11
-dw 11, 12, 12, 12, 13, 12
-dw 11, 13, 13, 13, 14, 13, 15, 13
-dw 11, 14, 12, 14, 13, 14 
-dw 10, 15 ,11, 15, 12, 15, 13, 15, 14, 15, 15, 15   
-dw 10, 16 ,11, 16, 12, 16, 13, 16, 14, 16, 15, 16  
+TANK DW 10, 10 ,11, 10, 12, 10, 13, 10, 14, 10, 15, 10   ;TANK PIXELS 
+DW 10, 11 ,11, 11, 12, 11, 13, 11, 14, 11, 15, 11
+DW 11, 12, 12, 12, 13, 12
+DW 11, 13, 13, 13, 14, 13, 15, 13
+DW 11, 14, 12, 14, 13, 14 
+DW 10, 15 ,11, 15, 12, 15, 13, 15, 14, 15, 15, 15   
+DW 10, 16 ,11, 16, 12, 16, 13, 16, 14, 16, 15, 16  
 MENUITEM1 DB 'PRESS F1 TO START CHATTING$'
 MENUITEM2 DB 'PRESS F2 TO START THE GAME$'
 MENUITEM3 DB 'PRESS ESC TO EXIT THE PROGRAM',10,13,'$'
@@ -1337,263 +1300,260 @@ MAIN                PROC FAR
                     MOV DS,AX
                     MOV ES,AX      
                     
-                  ;{ open video mode
-                    mov ax, 4f02h 
-                    mov bx, 105h      
-                    int 10h   
+                  ;{ OPEN VIDEO MODE
+                    MOV AX, 4F02H 
+                    MOV BX, 105H      
+                    INT 10H   
                   ;}  
-                  MENU
-                  GHOSTWORD
-                  BUSTERWORD
-                  menuee:
-                  ;{ if(user press any key)
-                        mov ah, 1
-                        int 16h
-                        jnz menuee
+                  ;{DRAWWING THE INTERFACE
+                     MENU
+                     GHOSTWORD
+                     BUSTERWORD
+                  ;}
+                  MENUEE:
+                  ;{ IF(USER PRESS ANY KEY)
+                        MOV AH, 1
+                        INT 16H
+                        JNZ MENUEE
                   ;}
 
-                   ;{clearscreen
-                              mov ah, 0
-                              int 16h 
-                              call clearkeyboardbuffer  
+                   ;{CLEARSCREEN
+                              MOV AH, 0
+                              INT 16H 
+                              CALL CLEARKEYBOARDBUFFER  
                    ;}
                      
-                  ;{ if(user press ecs)
-                        cmp al,1bh
-                        jnz F1LABEL
-                         ;{ this to handle flakering
-                              mov ax, 4f02h 
-                              mov bx, 100h
-                              int 10h
+                  ;{ IF(USER PRESS ECS)
+                        CMP AL,1BH
+                        JNZ F1LABEL
+                         ;{ THIS TO HANDLE FLAKERING
+                              MOV AX, 4F02H 
+                              MOV BX, 100H
+                              INT 10H
                         ;}
                         MOV AH,4CH
                         INT 21H
                   ;}
 
                   F1LABEL:
-                  ;{ if(user press f1)
-                  ;     cmp ah,3bh
-                        jmp F2LABEL
+                  ;{ IF(USER PRESS F1)
+                  ;     CMP AH,3BH
+                        JMP F2LABEL
                   ;}
                       F2LABEL:
-                  ;{ if(user press f2)
-                        cmp ah,3ch
-                        jnz menuee
+                  ;{ IF(USER PRESS F2)
+                        CMP AH,3CH
+                        JNZ MENUEE
                   ;}
 
-                    mov si, offset Bitmapleftplayer1
-                    mov sp,offset Bitmaprightplayer2
-                mainloop:   ;{
-                    ;{ this to handle flakering
-                        mov ax, 4f02h 
-                        mov bx, 100h
-                        int 10h
+                    MOV SI, OFFSET BITMAPLEFTPLAYER1
+                    MOV SP,OFFSET BITMAPRIGHTPLAYER2
+                MAINLOOP:   ;{
+                    ;{ THIS TO HANDLE FLAKERING
+                        MOV AX, 4F02H 
+                        MOV BX, 100H
+                        INT 10H
                     ;}
-                    mov     bh, 0      ; DisplayPage doesn't change
-                    mov     dx, startposyplayer1     ; Y to start
-                    mov bp, 50
+                    MOV     BH, 0      ; DISPLAYPAGE DOESN'T CHANGE
+                    MOV     DX, STARTPOSYPLAYER1     ; Y TO START
+                    MOV BP, 50
 
-                           Outerplayer1Loop:;{ for(bp = 50; bd > 0; bp--)
-                              mov     cx, startposxplayer1    ; X to start 
-                              mov di, 50
-                                    Innerplayer1Loop:;{ for(dx = 50; dx > 0; dx--)
-                                             lodsb              ; Fetch color for this pixel
-                                             mov     ah, 0Ch    ; AH=0Ch is BIOS.WritePixel
-                                             int     10h
-                                             inc     cx         ; Next X
-                                             dec     di
-                                             jnz     Innerplayer1Loop
+                           OUTERPLAYER1LOOP:;{ FOR(BP = 50; BD > 0; BP--)
+                              MOV     CX, STARTPOSXPLAYER1    ; X TO START 
+                              MOV DI, 50
+                                    INNERPLAYER1LOOP:;{ FOR(DX = 50; DX > 0; DX--)
+                                             LODSB              ; FETCH COLOR FOR THIS PIXEL
+                                             MOV     AH, 0CH    ; AH=0CH IS BIOS.WRITEPIXEL
+                                             INT     10H
+                                             INC     CX         ; NEXT X
+                                             DEC     DI
+                                             JNZ     INNERPLAYER1LOOP
                                        ;}
-                              inc     dx         ; Next Y
-                              dec bp
-                              jnz     Outerplayer1Loop
-
-                     mov si,sp  
-                     mov dx, startposyplayer2    ; Y to start
-                     mov bp, 50
-                           Outerplayer2Loop:;{ for(bp = 50; bd > 0; bp--)
-                              mov     cx, startposxplayer2    ; X to start 
-                              mov di, 50
-                                    Innerplayer2Loop:;{ for(dx = 50; dx > 0; dx--)
-                                             lodsb              ; Fetch color for this pixel
-                                             mov     ah, 0Ch    ; AH=0Ch is BIOS.WritePixel
-                                             int     10h
-                                             inc     cx         ; Next X
-                                             dec     di
-                                             jnz     Innerplayer2Loop
+                              INC     DX         ; NEXT Y
+                              DEC BP
+                              JNZ     OUTERPLAYER1LOOP
+                     MOV SI,SP  
+                     MOV DX, STARTPOSYPLAYER2    ; Y TO START
+                     MOV BP, 50
+                           OUTERPLAYER2LOOP:;{ FOR(BP = 50; BD > 0; BP--)
+                              MOV     CX, STARTPOSXPLAYER2    ; X TO START 
+                              MOV DI, 50
+                                    INNERPLAYER2LOOP:;{ FOR(DX = 50; DX > 0; DX--)
+                                             LODSB              ; FETCH COLOR FOR THIS PIXEL
+                                             MOV     AH, 0CH    ; AH=0CH IS BIOS.WRITEPIXEL
+                                             INT     10H
+                                             INC     CX         ; NEXT X
+                                             DEC     DI
+                                             JNZ     INNERPLAYER2LOOP
                                        ;}
-                              inc     dx         ; Next Y
-                              dec bp
-                              jnz     Outerplayer2Loop
-                           
-
-
-
+                              INC     DX         ; NEXT Y
+                              DEC BP
+                              JNZ     OUTERPLAYER2LOOP
                     ;}
 
-                    ;{ if(user press any key)
-                        mov ah, 1
-                        int 16h
-                        jz checkkey
+                    ;{ IF(USER PRESS ANY KEY)
+                        MOV AH, 1
+                        INT 16H
+                        JZ CHECKKEY
                     ;}
                     
-                    ;{ delay 
+                    ;{ DELAY 
                         MOV     CX, 0FH
                         MOV     DX, 4240H
                         MOV     AH, 86H
                         INT     15H
                     ;}                     
- SOLVEJMP:           jmp mainloop
+ SOLVEJMP:           JMP MAINLOOP
                       
-                    checkkey:
-                        ;{clearscreen
-                              mov ah, 0
-                              int 16h 
-                              call clearkeyboardbuffer  
+                    CHECKKEY:
+                        ;{CLEARSCREEN
+                              MOV AH, 0
+                              INT 16H 
+                              CALL CLEARKEYBOARDBUFFER  
                         ;}
                      
                         ;{ CHECK MOVEMENT
-                              cmp al,'w' 
-                              jne movedownplayer1
-                              moveupplayer1:
-                              ;{ if the user press on w we decrement y by 3
-                                       sub startposyplayer1,3
-                                       jmp orinplayer1   
+                              CMP AL,'i' 
+                              JNE MOVEDOWNPLAYER1
+                              MOVEUPPLAYER1:
+                              ;{ IF THE USER PRESS ON W WE DECREMENT Y BY 3
+                                       SUB STARTPOSYPLAYER1,3
+                                       JMP ORINPLAYER1   
                                  ;}
-                              movedownplayer1:
-                              ;{ if the user press on s we increment y by 3
-                                       cmp al,'s' 
-                                       jne oruperplayer1
-                                       add startposyplayer1, 3
-                                       JMP orinplayer1
+                              MOVEDOWNPLAYER1:
+                              ;{ IF THE USER PRESS ON S WE INCREMENT Y BY 3
+                                       CMP AL,'k' 
+                                       JNE ORUPERPLAYER1
+                                       ADD STARTPOSYPLAYER1, 3
+                                       JMP ORINPLAYER1
                                  ;} 
-                              oruperplayer1:
-                              ;{ if the user press on e we increment y by 3
-                                       cmp al,'e'
-                                       jne orlowerplayer1 
-                                        CMP orientationplayer1, 5
-                                        Je orinplayer1 
-                                        inc orientationplayer1
-                                        JMP orinplayer1
+                              ORUPERPLAYER1:
+                              ;{ IF THE USER PRESS ON E WE INCREMENT Y BY 3
+                                       CMP AL,'o'
+                                       JNE ORLOWERPLAYER1 
+                                        CMP ORIENTATIONPLAYER1, 5
+                                        JE ORINPLAYER1 
+                                        INC ORIENTATIONPLAYER1
+                                        JMP ORINPLAYER1
                                  ;}
 
-                              orlowerplayer1:
-                              ;{ if the user press on e we increment y by 3
-                                       cmp al,'q'
-                                       jne orinplayer1 
-                                        CMP orientationplayer1,1 
-                                        Je orinplayer1 
-                                        dec orientationplayer1
+                              ORLOWERPLAYER1:
+                              ;{ IF THE USER PRESS ON E WE INCREMENT Y BY 3
+                                       CMP AL,'u'
+                                       JNE ORINPLAYER1 
+                                        CMP ORIENTATIONPLAYER1,1 
+                                        JE ORINPLAYER1 
+                                        DEC ORIENTATIONPLAYER1
                                  ;}
 
-                              orinplayer1:
+                              ORINPLAYER1:
                                  ;{ IF ORIENTAION IS LEFT
-                                    cmp orientationplayer1,4
-                                    jNZ ORIUPplayer1
-                                    mov si, offset Bitmapupleftplayer1
-                                    JMP MOVINGplayer2
+                                    CMP ORIENTATIONPLAYER1,4
+                                    JNZ ORIUPPLAYER1
+                                    MOV SI, OFFSET BITMAPUPLEFTPLAYER1
+                                    JMP MOVINGPLAYER2
                                  ;}
-                              ORIUPplayer1:
+                              ORIUPPLAYER1:
                                  ;{ IF ORIENTAION IS UPLEFT
-                                    cmp orientationplayer1,5
-                                    jnz ordownleftplayer1
-                                    mov si, offset Bitmapupplayer1
-                                    JMP MOVINGplayer2
+                                    CMP ORIENTATIONPLAYER1,5
+                                    JNZ ORDOWNLEFTPLAYER1
+                                    MOV SI, OFFSET BITMAPUPPLAYER1
+                                    JMP MOVINGPLAYER2
                                  ;}
-                              ordownleftplayer1:
+                              ORDOWNLEFTPLAYER1:
                                  ;{ IF ORIENTAION IS UPLEFT
-                                    cmp orientationplayer1,2
-                                    jnz ordownplayer1
-                                    mov si, offset Bitmapdownleftplayer1
-                                    JMP MOVINGplayer2
+                                    CMP ORIENTATIONPLAYER1,2
+                                    JNZ ORDOWNPLAYER1
+                                    MOV SI, OFFSET BITMAPDOWNLEFTPLAYER1
+                                    JMP MOVINGPLAYER2
                                  ;}
                                  
-                              ordownplayer1:
+                              ORDOWNPLAYER1:
                                  ;{ IF ORIENTAION IS UPLEFT
-                                    cmp orientationplayer1,1
-                                    jnz ORIUPLEFTplayer1
-                                    mov si, offset Bitmapdownplayer1
-                                    JMP MOVINGplayer2
+                                    CMP ORIENTATIONPLAYER1,1
+                                    JNZ ORIUPLEFTPLAYER1
+                                    MOV SI, OFFSET BITMAPDOWNPLAYER1
+                                    JMP MOVINGPLAYER2
                                  ;}
 
-                              ORIUPLEFTplayer1:      
+                              ORIUPLEFTPLAYER1:      
                                  ;{ IF ORIENTAION IS UP
-                                    mov si, offset Bitmapleftplayer1
+                                    MOV SI, OFFSET BITMAPLEFTPLAYER1
                                  ;}
                            ;}
 
-                        MOVINGplayer2:
+                        MOVINGPLAYER2:
                          ;{ CHECK MOVEMENT
-                              cmp al,'i' 
-                              jne movedownplayer2
-                              moveupplayer2:
-                              ;{ if the user press on w we decrement y by 3
-                                       sub startposyplayer2,3
-                                       jmp orinplayer2   
+                              CMP AL,'w' 
+                              JNE MOVEDOWNPLAYER2
+                              MOVEUPPLAYER2:
+                              ;{ IF THE USER PRESS ON W WE DECREMENT Y BY 3
+                                       SUB STARTPOSYPLAYER2,3
+                                       JMP ORINPLAYER2   
                                  ;}
-                              movedownplayer2:
-                              ;{ if the user press on s we increment y by 3
-                                       cmp al,'k' 
-                                       jne oruperplayer2
-                                       add startposyplayer2, 3
-                                       JMP orinplayer2
+                              MOVEDOWNPLAYER2:
+                              ;{ IF THE USER PRESS ON S WE INCREMENT Y BY 3
+                                       CMP AL,'s' 
+                                       JNE ORUPERPLAYER2
+                                       ADD STARTPOSYPLAYER2, 3
+                                       JMP ORINPLAYER2
                                  ;} 
-                              oruperplayer2:
-                              ;{ if the user press on e we increment y by 3
-                                       cmp al,'u'
-                                       jne orlowerplayer2 
-                                        CMP orientationplayer2, 5
-                                        Je orinplayer2 
-                                        inc orientationplayer2
-                                        JMP orinplayer2
+                              ORUPERPLAYER2:
+                              ;{ IF THE USER PRESS ON E WE INCREMENT Y BY 3
+                                       CMP AL,'q'
+                                       JNE ORLOWERPLAYER2 
+                                        CMP ORIENTATIONPLAYER2, 5
+                                        JE ORINPLAYER2 
+                                        INC ORIENTATIONPLAYER2
+                                        JMP ORINPLAYER2
                                  ;}
 
-                              orlowerplayer2:
-                              ;{ if the user press on e we increment y by 3
-                                       cmp al,'o'
-                                       jne orinplayer2 
-                                        CMP orientationplayer2,1 
-                                        Je orinplayer2 
-                                        dec orientationplayer2
+                              ORLOWERPLAYER2:
+                              ;{ IF THE USER PRESS ON E WE INCREMENT Y BY 3
+                                       CMP AL,'e'
+                                       JNE ORINPLAYER2 
+                                        CMP ORIENTATIONPLAYER2,1 
+                                        JE ORINPLAYER2 
+                                        DEC ORIENTATIONPLAYER2
                                  ;}
 
-                              orinplayer2:
+                              ORINPLAYER2:
                                  ;{ IF ORIENTAION IS LEFT
-                                    cmp orientationplayer2,4
-                                    jNZ ORIUPplayer2
-                                    mov sp, offset Bitmapuprightplayer2
+                                    CMP ORIENTATIONPLAYER2,4
+                                    JNZ ORIUPPLAYER2
+                                    MOV SP, OFFSET BITMAPUPRIGHTPLAYER2
                                     JMP MOVING
                                  ;}
-                              ORIUPplayer2:
+                              ORIUPPLAYER2:
                                  ;{ IF ORIENTAION IS UPLEFT
-                                    cmp orientationplayer2,5
-                                    jnz ordownleftplayer2
-                                    mov sp, offset Bitmapupplayer2
+                                    CMP ORIENTATIONPLAYER2,5
+                                    JNZ ORDOWNLEFTPLAYER2
+                                    MOV SP, OFFSET BITMAPUPPLAYER2
                                     JMP MOVING
                                  ;}
-                              ordownleftplayer2:
+                              ORDOWNLEFTPLAYER2:
                                  ;{ IF ORIENTAION IS UPLEFT
-                                    cmp orientationplayer2,2
-                                    jnz ordownplayer2
-                                    mov sp, offset Bitmapdownrightplayer2
+                                    CMP ORIENTATIONPLAYER2,2
+                                    JNZ ORDOWNPLAYER2
+                                    MOV SP, OFFSET BITMAPDOWNRIGHTPLAYER2
                                     JMP MOVING
                                  ;}
                                  
-                              ordownplayer2:
+                              ORDOWNPLAYER2:
                                  ;{ IF ORIENTAION IS UPLEFT
-                                    cmp orientationplayer2,1
-                                    jnz ORIUPLEFTplayer2
-                                    mov sp, offset Bitmapdownplayer2
+                                    CMP ORIENTATIONPLAYER2,1
+                                    JNZ ORIUPLEFTPLAYER2
+                                    MOV SP, OFFSET BITMAPDOWNPLAYER2
                                     JMP MOVING
                                  ;}
 
-                              ORIUPLEFTplayer2:      
+                              ORIUPLEFTPLAYER2:      
                                  ;{ IF ORIENTAION IS UP
-                                    mov sp, offset Bitmaprightplayer2
+                                    MOV SP, OFFSET BITMAPRIGHTPLAYER2
                                  ;}
 
                         ;}
-                    MOVING:    jMP SOLVEJMP
+                    MOVING:    JMP SOLVEJMP
                   ;}          
                     MOV AH,4CH
                     INT 21H
@@ -1604,20 +1564,19 @@ MAIN                ENDP
 
 
 ;------------------------------------------------------------------------
-; clears keyboard buffer
+; CLEARS KEYBOARD BUFFER
 ;--------------------------------------------------------------------------
-clearkeyboardbuffer		proc	near
-	push		ax
-	push		es
-	mov		ax, 0000h
-	mov		es, ax
-	mov		es:[041ah], 041eh
-	mov		es:[041ch], 041eh				; Clears keyboard buffer
-	pop		es
-	pop		ax
-	ret
-clearkeyboardbuffer		endp
-
+CLEARKEYBOARDBUFFER		PROC	NEAR
+	PUSH		AX
+	PUSH		ES
+	MOV		AX, 0000H
+	MOV		ES, AX
+	MOV		ES:[041AH], 041EH
+	MOV		ES:[041CH], 041EH				; CLEARS KEYBOARD BUFFER
+	POP		ES
+	POP		AX
+	RET
+CLEARKEYBOARDBUFFER		ENDP
 END MAIN    
 
 
