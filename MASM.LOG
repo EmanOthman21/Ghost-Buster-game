@@ -1,0 +1,20 @@
+Microsoft (R) Macro Assembler Version 5.10 
+Copyright (C) Microsoft Corp 1981, 1988.  All rights reserved.
+
+MAIN.ASM(2269): warning A4001: Extra characters on line
+MAIN.ASM(2278): warning A4001: Extra characters on line
+MAIN.ASM(2285): warning A4001: Extra characters on line
+MAIN.ASM(2286): warning A4001: Extra characters on line
+MAIN.ASM(2354): warning A4001: Extra characters on line
+MAIN.ASM(2363): warning A4001: Extra characters on line
+MAIN.ASM(2370): warning A4001: Extra characters on line
+MAIN.ASM(2371): warning A4001: Extra characters on line
+MAIN.ASM(2439): warning A4001: Extra characters on line
+MAIN.ASM(2448): warning A4001: Extra characters on line
+MAIN.ASM(2455): warning A4001: Extra characters on line
+MAIN.ASM(2456): warning A4001: Extra characters on line
+
+  49526 + 409052 Bytes symbol space free
+
+     12 Warning Errors
+      0 Severe  Errors
