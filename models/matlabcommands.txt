@@ -1,11 +1,11 @@
-A = imread('G:\Projects\2nd year\1st term\microprocessor\models\up1.png')
+A = imread('G:\Projects\2nd year\1st term\microprocessor\models\bullet2.png')
 redChannel = A(:,:,1); % Red channel
 greenChannel = A(:,:,2); % Green channel
 blueChannel = A(:,:,3);
-redChannel(redChannel<85) = 0
-redChannel(redChannel>=85) = 4
-greenChannel(greenChannel<85) = 0
-greenChannel(greenChannel>=85) = 2
-blueChannel(blueChannel<85) = 0
-blueChannel(blueChannel>=85) = 1
+redChannel(redChannel<128) = 0
+redChannel(redChannel>=128) = 4
+greenChannel(greenChannel<128) = 0
+greenChannel(greenChannel>=128) = 2
+blueChannel(blueChannel<128) = 0
+blueChannel(blueChannel>=128) = 1
 X = blueChannel + greenChannel + redChannel
