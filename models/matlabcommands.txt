@@ -1,4 +1,4 @@
-A = imread('G:\Projects\2nd year\1st term\microprocessor\models\bullet2.png')
+A = imread('G:\Projects\2nd year\1st term\microprocessor\models\heart.bmp')
 redChannel = A(:,:,1); % Red channel
 greenChannel = A(:,:,2); % Green channel
 blueChannel = A(:,:,3);
