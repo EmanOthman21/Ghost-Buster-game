@@ -1,154 +1,7 @@
-;-----------------------------------------------------------------------------
-;  MACRO TO GET RANDOM NUMBER WITHIN A PROVIDED RANGE 
-;-----------------------------------------------------------------------------
-RANDOMIZE MACRO LOWER, UPPER, NUMBER
-   PUSH AX
-   PUSH BX
-   PUSH CX
-   PUSH DX
-
-   MOV AH, 2CH  ;GET SYSTEM TIME
-   INT 21H
-
-   MOV AL, DL
-   SUB DL, DL
-   ADD AX, DX
-   SUB DX, DX
-   MOV CX, UPPER
-   SUB CX, LOWER
-   DIV CX     ;THIS DIVIDES AX/CX AND THE REMAINDER IS AT DX(NUMBER WITHIN RANGE OF THE SUBTRACTION UPPER - LOWER)
-   ADD DX, LOWER
-   MOV NUMBER, DX
-
-   POP DX
-   POP CX
-   POP BX
-   POP AX
-ENDM RANDOMIZE 
-
-
-;-----------------------------------------------------------------------------
-;  MACRO CHECK IF THE SHAPE IS WITHIN BOUNDARIES 
-;-----------------------------------------------------------------------------
-WITHIN_BOUNDARIES MACRO STARTPOSX, STARTPOSY, SIZE, RESULT
-   LOCAL UPPER_CHECK, LOWERCHECK, LEFTCHECK, RIGHTCHECK, WITHINRANGE
-   PUSH AX
-   PUSH BX
-   PUSH CX
-   PUSH DX
-
-
-   MOV RESULT, 1           ;FIRST ASSUME THAT THE SHAPE IS WITHIN BOUNDARIES
-   UPPER_CHECK:
-   ;{ CHECK FOR THE BOUNDARIES ABOVE
-      MOV CX, STARTPOSY
-      MOV BX, UPPERBOUND_Y
-      SUB CX, BX
-      CMP CX, 0  
-      JGE LOWERCHECK
-      MOV RESULT, 0   
-   ;}
-   
-   LOWERCHECK:
-   ;{CHECK FOR BOUNDARIES BELOW
-      MOV CX, STARTPOSY
-      ADD CX, SIZE    ;GET THE Y COORDINATE OF THE LOWEST POINT OF THE TANK
-      MOV BX, LOWERBOUND_Y
-      SUB BX, CX
-      CMP BX, 0  ;CURRENT Y DISTANCE TO THE BOUNDARY VS REMAINING DISTANCE TO THE BOUNDARY
-      JGE RIGHTCHECK
-      MOV RESULT, 0
-   ;}  
-
-   RIGHTCHECK:
-   ;{CHECK FOR BOUNDARIES ON THE RIGHT
-      MOV CX, STARTPOSX
-      ADD CX, SIZE    ;GET THE Y COORDINATE OF THE LOWEST POINT OF THE TANK
-      MOV BX, RIGHTBOUND_X
-      SUB BX, CX
-      CMP BX, 0  ;CURRENT Y DISTANCE TO THE BOUNDARY VS REMAINING DISTANCE TO THE BOUNDARY
-      JGE LEFTCHECK
-      MOV RESULT, 0
-   ;} 
-
-   LEFTCHECK:
-   ;{ CHECK FOR THE BOUNDARIES ON THE LEFT
-      MOV CX, STARTPOSX
-      MOV BX, LEFTBOUND_X
-      SUB CX, BX
-      CMP CX, 0  
-      JGE WITHINRANGE
-      MOV RESULT, 0   
-   ;} 
-
-   WITHINRANGE:
-   POP DX
-   POP CX
-   POP BX
-   POP AX
-ENDM RANDOMIZE 
-
-;-----------------------------------------------------------------------------
-;  macro to print any number providing the hexadecimal representation 
-;-----------------------------------------------------------------------------
-
-PRINTNUM MACRO BINARY, DECIMAL
-   LOCAL BACK 
-   mov DECIMAL, '0'
-   mov DECIMAL + 1, '0'
-   MOV BX, 10            
-   MOV SI, OFFSET DECIMAL
-   ADD SI, 3
-   DEC SI
-   MOV AX, BINARY
-   BACK:
-      SUB DX, DX
-      DIV BX
-      OR DL, 30H
-      MOV [SI], DL
-      DEC SI
-      CMP AX, 0
-      JA BACK 
-    
-   MOV AH, 2
-   MOV DH, 1    ;Y POSITION FOR PRINTING
-   MOV DL, 35    ;X POSITION FOR PRINTING
-   INT 10H
-    
-   MOV AH, 9H      ;PRINT THE NUMBER
-   MOV DX, OFFSET DECIMAL   
-   INT 21H
-    
-ENDM PRINTNUM 
-
-
-;-----------------------------------------------------------------------------
-;  macro to draw any needed object(square) providing the length of the side,
-;  a register containing the offset of the colors in the ds, starting x and y
-;-----------------------------------------------------------------------------
-DRAW_OBJECT MACRO SIZE, BITMAP, X, Y
-LOCAL INNERLOOP, OUTERLOOP
-;{
-   MOV SI, BITMAP  ;TAKE THE RIGHT BITMAP FROM A REGISTER CONTAINING THE OFFSET
-   MOV     DX, Y     ; Y TO START DRAWING AT
-   MOV BP, SIZE        
-   OUTERLOOP:;{ FOR(BP = 50; BD > 0; BP--)
-      MOV     CX, X    ; X TO START 
-      MOV DI, SIZE
-      INNERLOOP:;{ FOR(DX = 50; DX > 0; DX--)
-         LODSB              ; FETCH COLOR FOR THIS PIXEL
-         MOV     AH, 0CH    ; AH=0CH IS BIOS.WRITEPIXEL
-         INT     10H
-         INC     CX         ; NEXT X POSITION
-         DEC     DI
-         JNZ     INNERLOOP
-         ;}
-      INC     DX         ; NEXT Y POSITION
-      DEC     BP
-      JNZ     OUTERLOOP
-;} 
-ENDM DRAW_OBJECT
-
+INCLUDE RANDOM.INC
+INCLUDE PRINTNUM.INC
+INCLUDE BUNDRY.INC
+INCLUDE DWOBJ.INC
 INCLUDE MENU.INC
 INCLUDE GHOST.INC
 INCLUDE BUSTERS.INC
@@ -1731,124 +1584,125 @@ MENUITEM3 DB 'PRESS ESC TO EXIT THE PROGRAM',10,13,'$'
 ;---------------------------------------------------------------------------------------------------------
 .CODE                                                 
 MAIN                PROC FAR        
-   MOV AX,@DATA   
-   MOV DS,AX
-   MOV ES,AX      
+   MOV     AX,@DATA   
+   MOV     DS,AX
+   MOV     ES,AX      
    
-;{ OPEN VIDEO MODE
-   MOV AX, 4F02H 
-   MOV BX, 105H      
-   INT 10H   
-;}  
-;{DRAWWING THE INTERFACE
-   MENU
-   GHOSTWORD
-   BUSTERWORD
-;}
-MENUEE:
-;{ IF(USER PRESS ANY KEY)
-      MOV AH, 1
-      INT 16H
-      JNZ MENUEE
-;}
-
-;{TAKE INPUT AND CLEAR KEYBOARD BUFFER
-   MOV AH, 0
-   INT 16H 
-   CALL CLEARKEYBOARDBUFFER  
-;}
-   
-;{ IF(USER PRESS ECS)
-   CMP AL,1BH
-   JNZ F1LABEL
-   ;{ THIS TO HANDLE FLICKERING
-      MOV AX, 4F02H 
-      MOV BX, 100H
-      INT 10H
+   ;{ OPEN VIDEO MODE
+         MOV    AX, 4F02H 
+         MOV    BX, 105H      
+         INT    10H   
    ;}
-   MOV AH,4CH
-   INT 21H
-;}
 
-F1LABEL:
-;{ IF(USER PRESS F1)
-;     CMP AH,3BH
-   JMP F2LABEL
-;}
-F2LABEL:
-;{ IF(USER PRESS F2)
-   CMP AH,3CH
-   JNZ MENUEE
-;}
-   MOV AH, 2CH  ;GET SYSTEM TIME
-   INT 21H
-   MOV PREV_SYS_SECOND, DH  ;STORE THE CURRENT SECOND OF THE SYSTEM
-   MAINLOOP:   ;{
-                         
-         MOV AX, 4F02H     ; THIS TO HANDLE FLICKERING WE REOPEN THE VIDEO MODE EVERYTIME 
-         MOV BX, 100H
-         INT 10H
+   ;{DRAWWING THE INTERFACE
+         MENU
+         GHOSTWORD
+         BUSTERWORD
+   ;}
+
+   MENUEE:
+   ;{ IF(USER PRESS ANY KEY)
+         MOV    AH, 1
+         INT    16H
+         JNZ    MENUEE
+   ;}
+
+   ;{TAKE INPUT AND CLEAR KEYBOARD BUFFER
+         MOV     AH, 0
+         INT     16H 
+         CALL    CLEARKEYBOARDBUFFER  
+   ;}
+   
+   ;{ IF(USER PRESS ECS)
+         CMP     AL,1BH
+         JNZ     F1LABEL
+            ;{ THIS TO HANDLE FLICKERING
+                  MOV    AX, 4F02H 
+                  MOV    BX, 100H
+                  INT    10H
+            ;}
+         MOV    AH,4CH
+         INT    21H
+   ;}
+
+   F1LABEL:
+   ;{ IF(USER PRESS F1)
+   ;     CMP    AH,3BH
+         JMP    F2LABEL
+   ;}
+   F2LABEL:
+   ;{ IF(USER PRESS F2)
+         CMP    AH,3CH
+         JNZ    MENUEE
+   ;}
+   MOV    AH, 2CH  ;GET SYSTEM TIME
+   INT    21H
+   MOV    PREV_SYS_SECOND, DH  ;STORE THE CURRENT SECOND OF THE SYSTEM
+   MAINLOOP:
+   ;{
+         MOV    AX, 4F02H     ; THIS TO HANDLE FLICKERING WE REOPEN THE VIDEO MODE EVERYTIME 
+         MOV    BX, 100H
+         INT    10H
 
 
-         PRINTNUM TIME, TIME_DECIMAL    ;macro to display time
-         CMP TIME, 0                    ;END GAME AT TIME 0
-         JE ENDPROGRAM
-         MOV AH, 2CH
-         INT 21H
-         CMP DH, PREV_SYS_SECOND
-         JE NOTIMECHANGE
-         SUB TIME, 1                    ;DECREASE THE 
-         MOV AX, TIME  ;TO CHECK IF 10 DIVIDES TIME THEN A NEW WAVE OF GHOST APPEAR
-         MOV BL, 9
-         DIV BL
-         CMP AH, 0
-         JNE NOGHOSTWAVE
+         PRINTNUM     TIME, TIME_DECIMAL    ;macro to display time
+         CMP    TIME, 0                    ;END GAME AT TIME 0
+         JE     ENDPROGRAM
+         MOV    AH, 2CH
+         INT    21H
+         CMP    DH, PREV_SYS_SECOND
+         JE     NOTIMECHANGE
+         SUB    TIME, 1                    ;DECREASE THE 
+         MOV    AX, TIME  ;TO CHECK IF 10 DIVIDES TIME THEN A NEW WAVE OF GHOST APPEAR
+         MOV    BL, 9
+         DIV    BL
+         CMP    AH, 0
+         JNE    NOGHOSTWAVE
          ;{ IF IT'S TIME FOR NEW WAVE INITIALIZE THEIR POSITIONS
-            CALL RANDOMIZE_GHOST1
-            CALL RANDOMIZE_GHOST2
-            CALL RANDOMIZE_GHOST3
+               CALL    RANDOMIZE_GHOST1
+               CALL    RANDOMIZE_GHOST2
+               CALL    RANDOMIZE_GHOST3
          ;}
          
 
          NOTIMECHANGE:
-         NOGHOSTWAVE:
-         MOV PREV_SYS_SECOND, DH       ;CURRENT SECOND IS PREVIOUS FOR NEXT TIME
-          
-         CALL MOVE_GHOST1
-         CALL MOVE_GHOST2
-         CALL MOVE_GHOST3
-         CALL DRAW_TANK1
-         CALL DRAW_TANK2
-         CALL DRAW_GHOST1
-         CALL DRAW_GHOST2
-         CALL DRAW_GHOST3
+               NOGHOSTWAVE:
+                     MOV    PREV_SYS_SECOND, DH       ;CURRENT SECOND IS PREVIOUS FOR NEXT TIME
+                     CALL   MOVE_GHOST1
+                     CALL   MOVE_GHOST2
+                     CALL   MOVE_GHOST3
+                     CALL   DRAW_TANK1
+                     CALL   DRAW_TANK2
+                     CALL   DRAW_GHOST1
+                     CALL   DRAW_GHOST2
+                     CALL   DRAW_GHOST3
 
 
-      ;{ DELAY 0.125 SECOND  WHERE DELAY IN MELLISECOND IS CXDX  CX AND MSB AND DX AS LSB
-         MOV     CX, 00H
-         MOV     DX, 0C350H
-         MOV     AH, 86H
-         INT     15H
-         
-      ;}
+               ;{ DELAY 0.125 SECOND  WHERE DELAY IN MELLISECOND IS CXDX  CX AND MSB AND DX AS LSB
+                     MOV     CX, 00H
+                     MOV     DX, 0C350H
+                     MOV     AH, 86H
+                     INT     15H
+               ;}
       
-      ;{ IF(USER PRESS ANY KEY)
-         MOV AH, 1
-         INT 16H
-         JNZ CHECKKEY
-      ;}
+               ;{ IF(USER PRESS ANY KEY)
+                     MOV    AH, 1
+                     INT    16H
+                     JNZ    CHECKKEY
+               ;}
+                     JMP    MAINLOOP
+            CHECKKEY:
+               ;{
+                     CALL   USERINPUT
+                     JMP    MAINLOOP
+               ;}
 
-      JMP MAINLOOP
 
-      CHECKKEY:
-         CALL USERINPUT
-         JMP MAINLOOP
-
-
-
-      ENDPROGRAM:         
-         MOV AH,4CH
-         INT 21H
+            ENDPROGRAM: 
+               ;{        
+                     MOV    AH,4CH
+                     INT    21H
+               ;}
 MAIN                ENDP   
 
 ;------------------------------------------------------------------------
@@ -1872,126 +1726,131 @@ CLEARKEYBOARDBUFFER		ENDP
 
 USERINPUT PROC 
 ;{    
-   PUSH AX
-   PUSH BX
-   PUSH CX
-   PUSH DX
-
-   MOV AH, 0
-   INT 16H     ; TAKE THE USER INPUT FROM THE KEYBOARD BUFFER 
-   CALL CLEARKEYBOARDBUFFER  
+      ;{SAVE DATA
+         PUSH    AX
+         PUSH    BX
+         PUSH    CX
+         PUSH    DX
+      ;}
+      ;{ TAKE THE USER INPUT FROM THE KEYBOARD BUFFER
+         MOV    AH, 0
+         INT    16H      
+         CALL   CLEARKEYBOARDBUFFER  
+      ;} 
    
-   
-   MOVEUP1:
-   ;{
-      CMP AL, 'w' 
-      JNE MOVEDOWN1
-      MOV CX, STARTPOS_Y_PLAYER1
-      MOV BX, UPPERBOUND_Y
-      SUB CX, BX
-      CMP CX, 3  ;CURRENT Y DISTANCE TO THE BOUNDARY VS REMAINING DISTANCE TO THE BOUNDARY
-      JL BACKTOMAINLOOP_1
-      SUB STARTPOS_Y_PLAYER1, 3
-      JMP BACKTOMAINLOOP_1     
-   ;}
-   
-   MOVEDOWN1:
-   ;{
-      CMP AL, 's' 
-      JNE ORIENT_UP1
-      MOV CX, STARTPOS_Y_PLAYER1
-      ADD CX, TANKSIZE    ;GET THE Y COORDINATE OF THE LOWEST POINT OF THE TANK
-      MOV BX, LOWERBOUND_Y
-      SUB BX, CX
-      CMP BX, 3  ;CURRENT Y DISTANCE TO THE BOUNDARY VS REMAINING DISTANCE TO THE BOUNDARY
-      JL BACKTOMAINLOOP_1
-      ADD STARTPOS_Y_PLAYER1, 3
-      JMP BACKTOMAINLOOP_1 
-   ;}
+      MOVEUP1:
+      ;{
+         CMP    AL, 'w' 
+         JNE    MOVEDOWN1
+         MOV    CX, STARTPOS_Y_PLAYER1
+         MOV    BX, UPPERBOUND_Y
+         SUB    CX, BX
+         CMP    CX, 3  ;CURRENT Y DISTANCE TO THE BOUNDARY VS REMAINING DISTANCE TO THE BOUNDARY
+         JL     BACKTOMAINLOOP_1
+         SUB    STARTPOS_Y_PLAYER1, 3
+         JMP    BACKTOMAINLOOP_1     
+      ;}
       
-   
-   ORIENT_UP1:
-   ;{
-      CMP AL, 'q' 
-      JNE ORIENT_DOWN1
-      CMP ORIENTATION_PLAYER1, 0
-      JE BACKTOMAINLOOP_1
-      SUB ORIENTATION_PLAYER1, 1 
-      JMP BACKTOMAINLOOP_1
-   ;}
-   ORIENT_DOWN1:
-   ;{
-      CMP AL, 'e' 
-      JNE MOVEUP2
-      CMP ORIENTATION_PLAYER1, 4
-      JE BACKTOMAINLOOP
-      ADD ORIENTATION_PLAYER1, 1 
-      BACKTOMAINLOOP_1:      ;JUST A MIDDLE JUMP TO USE IT FOR THE PREVIOUS LABELS
-      JMP BACKTOMAINLOOP         
-   ;}
-
-    MOVEUP2:
-   ;{
-      CMP AL, 'i' 
-      JNE MOVEDOWN2
-      MOV CX, STARTPOS_Y_PLAYER2
-      MOV BX, UPPERBOUND_Y
-      SUB CX, BX
-      CMP CX, 3  ;CURRENT Y DISTANCE TO THE BOUNDARY VS REMAINING DISTANCE TO THE BOUNDARY
-      JL BACKTOMAINLOOP
-      SUB STARTPOS_Y_PLAYER2, 3
-      JMP BACKTOMAINLOOP   
-   ;}
-   
-   MOVEDOWN2:
-   ;{
-      CMP AL, 'k' 
-      JNE ORIENT_UP2
-      MOV CX, STARTPOS_Y_PLAYER2
-      ADD CX, TANKSIZE    ;GET THE Y COORDINATE OF THE LOWEST POINT OF THE TANK
-      MOV BX, LOWERBOUND_Y
-      SUB BX, CX
-      CMP BX, 3  ;CURRENT Y DISTANCE TO THE BOUNDARY VS REMAINING DISTANCE TO THE BOUNDARY
-      JL BACKTOMAINLOOP
-      ADD STARTPOS_Y_PLAYER2, 3
-      JMP BACKTOMAINLOOP 
-   ;}
+      MOVEDOWN1:
+      ;{
+         CMP    AL, 's' 
+         JNE    ORIENT_UP1
+         MOV    CX, STARTPOS_Y_PLAYER1
+         ADD    CX, TANKSIZE    ;GET THE Y COORDINATE OF THE LOWEST POINT OF THE TANK
+         MOV    BX, LOWERBOUND_Y
+         SUB    BX, CX
+         CMP    BX, 3  ;CURRENT Y DISTANCE TO THE BOUNDARY VS REMAINING DISTANCE TO THE BOUNDARY
+         JL     BACKTOMAINLOOP_1
+         ADD    STARTPOS_Y_PLAYER1, 3
+         JMP    BACKTOMAINLOOP_1 
+      ;}
       
+      ORIENT_UP1:
+      ;{
+         CMP    AL, 'q' 
+         JNE    ORIENT_DOWN1
+         CMP    ORIENTATION_PLAYER1, 0
+         JE     BACKTOMAINLOOP_1
+         SUB    ORIENTATION_PLAYER1, 1 
+         JMP    BACKTOMAINLOOP_1
+      ;}
    
-   ORIENT_UP2:
-   ;{
-      CMP AL, 'o' 
-      JNE ORIENT_DOWN2
-      CMP ORIENTATION_PLAYER2, 0
-      JE BACKTOMAINLOOP
-      SUB ORIENTATION_PLAYER2, 1 
-      JMP BACKTOMAINLOOP
-   ;}
-   ORIENT_DOWN2:
-   ;{
-      CMP AL, 'u' 
-      JNE EXITPROG
-      CMP ORIENTATION_PLAYER2, 4
-      JE BACKTOMAINLOOP
-      ADD ORIENTATION_PLAYER2, 1 
-      JMP BACKTOMAINLOOP          
-   ;}
-   EXITPROG:
-   ;{
-      CMP AL,1BH
-      JNE BACKTOMAINLOOP
-      MOV AX, 4F02H     ; THIS TO HANDLE FLICKERING WE REOPEN THE VIDEO MODE EVERYTIME 
-      MOV BX, 100H
-      INT 10H
-      MOV AH, 4CH
-      INT 21H
-   ;}
+      ORIENT_DOWN1:
+      ;{
+         CMP    AL, 'e' 
+         JNE    MOVEUP2
+         CMP    ORIENTATION_PLAYER1, 4
+         JE     BACKTOMAINLOOP
+         ADD    ORIENTATION_PLAYER1, 1 
+         BACKTOMAINLOOP_1:      ;JUST A MIDDLE JUMP TO USE IT FOR THE PREVIOUS LABELS
+         JMP    BACKTOMAINLOOP         
+      ;}
 
-   BACKTOMAINLOOP:
-   POP DX
-   POP CX
-   POP BX
-   POP AX   
+      MOVEUP2:
+      ;{
+         CMP    AL, 'i' 
+         JNE    MOVEDOWN2
+         MOV    CX, STARTPOS_Y_PLAYER2
+         MOV    BX, UPPERBOUND_Y
+         SUB    CX, BX
+         CMP    CX, 3  ;CURRENT Y DISTANCE TO THE BOUNDARY VS REMAINING DISTANCE TO THE BOUNDARY
+         JL     BACKTOMAINLOOP
+         SUB    STARTPOS_Y_PLAYER2, 3
+         JMP    BACKTOMAINLOOP   
+      ;}
+      
+      MOVEDOWN2:
+      ;{
+         CMP    AL, 'k' 
+         JNE    ORIENT_UP2
+         MOV    CX, STARTPOS_Y_PLAYER2
+         ADD    CX, TANKSIZE    ;GET THE Y COORDINATE OF THE LOWEST POINT OF THE TANK
+         MOV    BX, LOWERBOUND_Y
+         SUB    BX, CX
+         CMP    BX, 3  ;CURRENT Y DISTANCE TO THE BOUNDARY VS REMAINING DISTANCE TO THE BOUNDARY
+         JL     BACKTOMAINLOOP
+         ADD    STARTPOS_Y_PLAYER2, 3
+         JMP    BACKTOMAINLOOP 
+      ;}
+      
+      ORIENT_UP2:
+      ;{
+         CMP    AL, 'o' 
+         JNE    ORIENT_DOWN2
+         CMP    ORIENTATION_PLAYER2, 0
+         JE     BACKTOMAINLOOP
+         SUB    ORIENTATION_PLAYER2, 1 
+         JMP    BACKTOMAINLOOP
+      ;}
+
+      ORIENT_DOWN2:
+      ;{
+         CMP    AL, 'u' 
+         JNE    EXITPROG
+         CMP    ORIENTATION_PLAYER2, 4
+         JE     BACKTOMAINLOOP
+         ADD    ORIENTATION_PLAYER2, 1 
+         JMP    BACKTOMAINLOOP          
+      ;}
+
+      EXITPROG:
+      ;{
+         CMP    AL,1BH
+         JNE    BACKTOMAINLOOP
+         MOV    AX, 4F02H     ; THIS TO HANDLE FLICKERING WE REOPEN THE VIDEO MODE EVERYTIME 
+         MOV    BX, 100H
+         INT    10H
+         MOV    AH, 4CH
+         INT    21H
+      ;}
+
+      ;{RETURN STORED DATA
+         BACKTOMAINLOOP:
+         POP DX
+         POP CX
+         POP BX
+         POP AX
+      ;}   
 RET
 USERINPUT		ENDP 
 
@@ -2001,49 +1860,64 @@ USERINPUT		ENDP
 
 DRAW_TANK1 PROC 
 ;{
-   PUSH AX
-   PUSH BX
-   PUSH CX
-   PUSH DX
-   
-   
-   MOV BX, TANKSIZE    ;TO STORE THE TANK SIZE TO BE SENT TO THE DRAWING MACRO
-   CMP ORIENTATION_PLAYER1, 0
-   JNE UPRIGHT
-   ;{ IF(ORIENTATION IS UP)
-      MOV SI, OFFSET BITMAPUPPLAYER1  
-      JMP DRAWTANK 
+    ;{SAVE DATA  
+      PUSH   AX
+      PUSH   BX
+      PUSH    CX
+      PUSH   DX
    ;}
-   UPRIGHT:   
-      CMP ORIENTATION_PLAYER1, 1
-      JNE RIGHT
-      ;{ IF(ORIENTATION IS UPRIGHT)
-         MOV SI, OFFSET BITMAPUPRIGHTPLAYER1
-         JMP DRAWTANK  
+   
+   ;{;TO STORE THE TANK SIZE TO BE SENT TO THE DRAWING MACRO
+      MOV    BX, TANKSIZE    
+      CMP    ORIENTATION_PLAYER1, 0
+      JNE    UPRIGHT
+   ;}
+
+   ;{ IF(ORIENTATION IS UP)
+      MOV    SI, OFFSET BITMAPUPPLAYER1  
+      JMP    DRAWTANK 
+   ;}
+   UPRIGHT:
+      ;{   
+         CMP    ORIENTATION_PLAYER1, 1
+         JNE    RIGHT
+            ;{ IF(ORIENTATION IS UPRIGHT)
+               MOV    SI, OFFSET BITMAPUPRIGHTPLAYER1
+               JMP    DRAWTANK  
+            ;}
       ;}
    RIGHT:
-      CMP ORIENTATION_PLAYER1, 2
-      JNE DOWNRIGHT
-      ;{ IF(ORIENTATION IS RIGHT)
-         MOV SI, OFFSET BITMAPRIGHTPLAYER1
-         JMP DRAWTANK  
-      ;}
+   ;{
+         CMP    ORIENTATION_PLAYER1, 2
+         JNE    DOWNRIGHT
+         ;{ IF(ORIENTATION IS RIGHT)
+            MOV    SI, OFFSET BITMAPRIGHTPLAYER1
+            JMP    DRAWTANK  
+         ;}
+   ;}
    DOWNRIGHT:
-      CMP ORIENTATION_PLAYER1, 3
-      JNE DOWN1
-      ;{ IF(ORIENTATION IS DOWNRIGHT)
-         MOV SI, OFFSET BITMAPDOWNRIGHTPLAYER1
-         JMP DRAWTANK  
-      ;}
+   ;{
+         CMP    ORIENTATION_PLAYER1, 3
+         JNE    DOWN1
+         ;{ IF(ORIENTATION IS DOWNRIGHT)
+            MOV    SI, OFFSET BITMAPDOWNRIGHTPLAYER1
+            JMP    DRAWTANK  
+         ;}
+   ;}   
    DOWN1:
-      MOV SI, OFFSET BITMAPDOWNPLAYER1   
-
+   ;{
+         MOV    SI, OFFSET BITMAPDOWNPLAYER1   
+   ;}
    DRAWTANK:
-      DRAW_OBJECT BX, SI, STARTPOS_X_PLAYER1, STARTPOS_Y_PLAYER1
-   POP DX
-   POP CX
-   POP BX
-   POP AX
+   ;{
+         DRAW_OBJECT    BX, SI, STARTPOS_X_PLAYER1, STARTPOS_Y_PLAYER1
+   ;}
+   ;{GET DATA STORED
+      POP DX
+      POP CX
+      POP BX
+      POP AX
+   ;}
 RET
 ;}
 DRAW_TANK1	ENDP
@@ -2054,48 +1928,60 @@ DRAW_TANK1	ENDP
 
 DRAW_TANK2 PROC 
 ;{
-   PUSH AX
-   PUSH BX
-   PUSH CX
-   PUSH DX
-   
-   MOV BX, TANKSIZE    ;TO STORE THE TANK SIZE TO BE SENT TO THE DRAWING MACRO
-   CMP ORIENTATION_PLAYER2, 0
-   JNE UPLEFT
+   ;{STORE DATA
+      PUSH    AX
+      PUSH    BX
+      PUSH    CX
+      PUSH    DX
+   ;}   
+   MOV    BX, TANKSIZE    ;TO STORE THE TANK SIZE TO BE SENT TO THE DRAWING MACRO
+   CMP    ORIENTATION_PLAYER2, 0
+   JNE    UPLEFT
    ;{ IF(ORIENTATION IS UP)
-      MOV SI, OFFSET BITMAPUPPLAYER2 
-      JMP DRAWTANK2
+      MOV    SI, OFFSET BITMAPUPPLAYER2 
+      JMP    DRAWTANK2
    ;}
-   UPLEFT:   
-      CMP ORIENTATION_PLAYER2, 1
-      JNE LEFT
-      ;{ IF(ORIENTATION IS UPLEFT)
-         MOV SI, OFFSET BITMAPUPLEFTPLAYER2
-         JMP DRAWTANK2  
-      ;}
+   UPLEFT: 
+   ;{  
+      CMP    ORIENTATION_PLAYER2, 1
+      JNE    LEFT
+         ;{ IF(ORIENTATION IS UPLEFT)
+            MOV    SI, OFFSET BITMAPUPLEFTPLAYER2
+            JMP    DRAWTANK2  
+         ;}
+   ;}
    LEFT:
-      CMP ORIENTATION_PLAYER2, 2
-      JNE DOWNLEFT
-      ;{ IF(ORIENTATION IS LEFT)
-         MOV SI, OFFSET BITMAPLEFTPLAYER2
-         JMP DRAWTANK2  
-      ;}
+   ;{
+      CMP    ORIENTATION_PLAYER2, 2
+      JNE    DOWNLEFT
+         ;{ IF(ORIENTATION IS LEFT)
+            MOV    SI, OFFSET BITMAPLEFTPLAYER2
+            JMP    DRAWTANK2  
+         ;}
+   ;}   
    DOWNLEFT:
-      CMP ORIENTATION_PLAYER2, 3
-      JNE DOWN2
-      ;{ IF(ORIENTATION IS DOWNLEFT)
-         MOV SI, OFFSET BITMAPDOWNLEFTPLAYER2
-         JMP DRAWTANK2  
-      ;}
+   ;{
+      CMP    ORIENTATION_PLAYER2, 3
+      JNE    DOWN2
+         ;{ IF(ORIENTATION IS DOWNLEFT)
+            MOV    SI, OFFSET BITMAPDOWNLEFTPLAYER2
+            JMP    DRAWTANK2  
+         ;}
+   ;}
    DOWN2:
-      MOV SI, OFFSET BITMAPDOWNPLAYER2   
-
+   ;{
+      MOV    SI, OFFSET BITMAPDOWNPLAYER2   
+   ;}
    DRAWTANK2:
-      DRAW_OBJECT TANKSIZE, SI, STARTPOS_X_PLAYER2, STARTPOS_Y_PLAYER2
-   POP DX
-   POP CX
-   POP BX
-   POP AX
+   ;{
+      DRAW_OBJECT     TANKSIZE, SI, STARTPOS_X_PLAYER2, STARTPOS_Y_PLAYER2
+   ;}
+   ;{GET DATA SOTRED
+      POP    DX
+      POP    CX
+      POP    BX
+      POP    AX
+   ;}
 RET
 ;}
 DRAW_TANK2	ENDP
@@ -2105,12 +1991,13 @@ DRAW_TANK2	ENDP
 ;-------------------------------------------------------------------------
 RANDOMIZE_GHOST1 PROC
 ;{
-   PUSH AX
-   PUSH BX
-   PUSH CX
-   PUSH DX
-
-   MOV EXISTS_GHOST1, 1
+   ;{
+      PUSH   AX
+      PUSH   BX
+      PUSH   CX
+      PUSH   DX
+   ;}
+   MOV    EXISTS_GHOST1, 1
    ;RANDOMIZE 0, 3 , MOTION_GHOST1
    MOV MOTION_GHOST1, 0     ;MOVE BY INC X AND Y
    RANDOMIZE 0, 2, POWERUP_GHOST1
