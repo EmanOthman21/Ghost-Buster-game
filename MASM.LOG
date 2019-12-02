@@ -1,20 +1,26 @@
 Microsoft (R) Macro Assembler Version 5.10 
 Copyright (C) Microsoft Corp 1981, 1988.  All rights reserved.
 
-MAIN.ASM(2525): warning A4001: Extra characters on line
-MAIN.ASM(2534): warning A4001: Extra characters on line
-MAIN.ASM(2541): warning A4001: Extra characters on line
-MAIN.ASM(2542): warning A4001: Extra characters on line
-MAIN.ASM(2610): warning A4001: Extra characters on line
-MAIN.ASM(2619): warning A4001: Extra characters on line
-MAIN.ASM(2626): warning A4001: Extra characters on line
-MAIN.ASM(2627): warning A4001: Extra characters on line
-MAIN.ASM(2695): warning A4001: Extra characters on line
-MAIN.ASM(2704): warning A4001: Extra characters on line
-MAIN.ASM(2711): warning A4001: Extra characters on line
-MAIN.ASM(2712): warning A4001: Extra characters on line
+main.ASM(2522): warning A4001: Extra characters on line
+main.ASM(2531): warning A4001: Extra characters on line
+main.ASM(2538): warning A4001: Extra characters on line
+main.ASM(2539): warning A4001: Extra characters on line
+main.ASM(2607): warning A4001: Extra characters on line
+main.ASM(2616): warning A4001: Extra characters on line
+main.ASM(2623): warning A4001: Extra characters on line
+main.ASM(2624): warning A4001: Extra characters on line
+main.ASM(2692): warning A4001: Extra characters on line
+main.ASM(2701): warning A4001: Extra characters on line
+main.ASM(2708): warning A4001: Extra characters on line
+main.ASM(2709): warning A4001: Extra characters on line
+main.ASM(2783): error A2009: Symbol not defined: BULLET_1_MODEL
+main.ASM(2905): error A2009: Symbol not defined: BULLET_2_MODEL
 
-  49214 + 393475 Bytes symbol space free
+   3972 Source  Lines
+   6015 Total   Lines
+    404 Symbols
+
+  49084 + 387971 Bytes symbol space free
 
      12 Warning Errors
-      0 Severe  Errors
+      2 Severe  Errors
