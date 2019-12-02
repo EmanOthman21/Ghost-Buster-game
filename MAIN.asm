@@ -1,3 +1,80 @@
+;-----------------------------------------------------------------------------------------------------------
+;  MACRO CHECK IF THE COLLISION OF TWO SQUARE GRIDS GIVEN THEIR SIZE AND UPPER LEFT VERTIX (START POSITION)
+;  COLLISION_STATUS = 0 IF THERE IS A COLLISION ELSE IT IS EQUAL TO ONE 
+;-----------------------------------------------------------------------------------------------------------
+DETECT_COLLISION MACRO STARTPOS_1X, STARTPOS_1Y, SIZE_1, STARTPOS_2X, STARTPOS_2Y, SIZE_2, COLLISION_STATUS
+    LOCAL COMMUTATEX, SKIP_COMMUTATEX, NO_COLLISION, COMMUTEY, SKIP_COMMUTATEY, END_DETECT_COLL
+    PUSH AX
+    PUSH BX
+    PUSH CX
+    PUSH DX
+    PUSH BP
+        ;DIVIDE THE FIRST SIZE BY 2
+        MOV CX, SIZE_1
+        SHR CX, 1
+        ;DIVIDE THE SECOND SIZE BY 2
+        MOV DX, SIZE_2
+        SHR DX, 1
+        ;GET THE SUPPOSED DISTANCE BETWEEN THEIR CENTERS
+        MOV BP , 0
+        ADD BP, DX
+        ADD BP, CX
+        ;INORDER TO MAKE SURE THE TWO SQUARES ARE COLLIDING NOT ONLY PASSING BY
+        SUB BP ,3 
+        ;GET THE ACTUAL DISTANCE BETWEEN THEIR CENTERS
+        ;GET THE CENTER X COORDINATE OF BOTH
+        MOV AX, STARTPOS_1X
+        ADD AX, CX
+        MOV BX, STARTPOS_2X
+        ADD BX, DX
+        ;SUBTRACT THE TWO X COORDINATES TO GET THE ACTUAL ABSOLUTE DISTANCE BETWEEN THEIR CENTERS IN X
+        CMP AX,BX
+        JL COMMUTATEX
+        SUB AX ,BX
+        CMP AX, BP
+        JA NO_COLLISION
+        JMP SKIP_COMMUTATEX
+        COMMUTATEX: 
+        ;{
+            SUB BX, AX
+            CMP BX, BP
+            JA NO_COLLISION
+        ;}    
+        SKIP_COMMUTATEX:
+        ;MAKE SIMILAR CHECKS TO THE ABOVE BUT IN Y COORDINATES
+        MOV AX, STARTPOS_1Y
+        ADD AX, CX
+        MOV BX, STARTPOS_2Y
+        ADD BX, DX
+        ;SUBTRACT THE TWO Y COORDINATES TO GET THE ACTUAL ABSOLUTE DISTANCE BETWEEN THEIR CENTERS IN Y
+        CMP AX, BX
+        JL COMMUTEY
+        SUB AX,BX
+        ;COMPARE WITH THE REQUIRED DISTANCE FOR COLLISION
+        CMP AX, BP
+        JA NO_COLLISION
+        JMP SKIP_COMMUTATEY
+        COMMUTEY:
+        ;{
+            SUB BX, AX
+            CMP BX, BP
+            JA NO_COLLISION
+        ;}    
+        SKIP_COMMUTATEY:
+        ;THEN THE TWO SQUARES COLLIDE
+        MOV COLLISION_STATUS, 0
+        JMP END_DETECT_COLL
+
+    NO_COLLISION:
+    MOV COLLISION_STATUS, 1    
+    END_DETECT_COLL:   
+    POP BP
+    POP DX
+    POP CX
+    POP BX
+    POP AX
+ENDM DETECT_COLLISION
+;------------------------------------------------------------------------------------------------
 INCLUDE RANDOM.INC
 INCLUDE PRINTNUM.INC
 INCLUDE BUNDRY.INC
@@ -1524,6 +1601,18 @@ db 0, 7, 7, 7, 7, 7, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 db 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 db 0, 7, 7, 7, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 
+Bullet_1_Model db 0, 0, 0, 4, 4, 4, 4, 0, 0, 0, 0, 4, 0, 4, 4, 4, 4, 7, 4, 0
+db 0, 7, 4, 4, 4, 4, 4, 4, 7, 0, 0, 7, 0, 7, 7, 7, 7, 7, 7, 0
+db 0, 4, 0, 4, 4, 4, 4, 4, 4, 0, 0, 4, 0, 4, 4, 4, 4, 4, 4, 0
+db 0, 4, 4, 4, 4, 4, 4, 4, 4, 0, 0, 4, 4, 4, 4, 4, 4, 4, 4, 0
+db 0, 0, 4, 4, 4, 4, 4, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+
+BULLET_2_MODEL db 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 1, 7, 1, 1, 1, 1, 0, 1, 0
+db 0, 7, 1, 1, 1, 1, 1, 1, 7, 0, 0, 7, 7, 7, 7, 7, 7, 1, 7, 0
+db 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0
+db 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0
+db 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+
 
 UPPERBOUND_Y DW 40   ;THOSE BOUNDARY VALUES ARE BASED ON 640*400 VIDEO MODE
 LOWERBOUND_Y DW 360
@@ -1536,7 +1625,10 @@ STARTPOS_Y_PLAYER1 DW 150
 TANK_HP_1 DW 5
 TANK_SPEED_1 DW 3
 TANK_DMG_1 DW 1      ;DMG == DAMAGE OR STRENGTH                   
-ORIENTATION_PLAYER1 DW 2  ; (0 UP, 1 UPRIGHT, 2 RIGHT, 3 DOWNRIGHT, 4 DOWN)
+ORIENTATION_PLAYER1 DW 2          ; (0 UP, 1 UPRIGHT, 2 RIGHT, 3 DOWNRIGHT, 4 DOWN)
+
+BULLET_1_START_POSITION_X DW 100  ;THE END POINT OF TANK 1 CANON SPECIFIED ACCORDING TO THE TANK POS AND ORIENTATION
+BULLET_1_START_POSITION_Y DW 175
 
 STARTPOS_X_PLAYER2 DW 550
 STARTPOS_Y_PLAYER2 DW 150
@@ -1545,6 +1637,18 @@ TANK_SPEED_2 DW 3
 TANK_DMG_2 DW 1      ;DMG == DAMAGE OR STRENGTH                     
 ORIENTATION_PLAYER2 DW 2  ; (0 UP, 1 UPLEFT, 2 LEFT, 3 DOWNLEFT, 4 DOWN)
 
+BULLET_2_START_POSITION_X DW 550  ;THE END POINT OF TANK 2 CANON SPECIFIED ACCORDING TO THE TANK POS AND ORIENTATION
+BULLET_2_START_POSITION_Y DW 175
+
+BULLET_1_POSITION_X DW 100 ;THE POSITION OF THE BULLET 1 AT ANY TIME AFTER IT IS FIRED
+BULLET_1_POSITION_Y DW 175
+BULLET_1_STATUS DW 0  ;BULLET 1 EXISTS OR NOT 0 -> NOT EXISTING
+BULLET_1_MOTION_TYPE DW 2 ; (0 UP, 1 UPLEFT, 2 LEFT, 3 DOWNLEFT, 4 DOWN)
+
+BULLET_2_POSITION_X DW 550 ;THE POSITION OF THE BULLET 2 AT ANY TIME AFTER IT IS FIRED
+BULLET_2_POSITION_Y DW 175
+BULLET_2_STATUS DW 0  ;BULLET 2 EXISTS OR NOT 0 -> NOT EXISTING
+BULLET_2_MOTION_TYPE DW 2 ; (0 UP, 1 UPLEFT, 2 LEFT, 3 DOWNLEFT, 4 DOWN)
 
 STARTPOS_X_GHOST1 DW ?
 STARTPOS_Y_GHOST1 DW ?
@@ -1575,6 +1679,7 @@ UPPER4MACRO DW ?
 
 TANKSIZE DW 50       ; SIZE OF ANY DRAWN TANK
 GHOSTSIZE DW 40      ; SIZE OF ANY GHOST
+BULLETSIZE DW 10     ; SIZE OF A BULLET
 
 MENUITEM1 DB 'PRESS F1 TO START CHATTING$'
 MENUITEM2 DB 'PRESS F2 TO START THE GAME$'
@@ -1647,14 +1752,15 @@ MAIN                PROC FAR
 
          PRINTNUM     TIME, TIME_DECIMAL    ;macro to display time
          CMP    TIME, 0                    ;END GAME AT TIME 0
-         JE     ENDPROGRAM
+         JE     ENDPROGRAM1
          MOV    AH, 2CH
          INT    21H
          CMP    DH, PREV_SYS_SECOND
          JE     NOTIMECHANGE
          SUB    TIME, 1                    ;DECREASE THE 
          MOV    AX, TIME  ;TO CHECK IF 10 DIVIDES TIME THEN A NEW WAVE OF GHOST APPEAR
-         MOV    BL, 9
+         INC    AX
+         MOV    BL, 10
          DIV    BL
          CMP    AH, 0
          JNE    NOGHOSTWAVE
@@ -1668,15 +1774,107 @@ MAIN                PROC FAR
          NOTIMECHANGE:
                NOGHOSTWAVE:
                      MOV    PREV_SYS_SECOND, DH       ;CURRENT SECOND IS PREVIOUS FOR NEXT TIME
+                     
                      CALL   MOVE_GHOST1
                      CALL   MOVE_GHOST2
                      CALL   MOVE_GHOST3
+
+               ;{CHECK FOR COLLISIONS BETWEEN THE GHOSTS AND TANK 1 IF THE GHOST EXISTS
+                     CMP EXISTS_GHOST1, 1
+                     JNE SKIP_GHOST1_CHECK1
+                        CALL CHECK_HIT_GHOST1_TANK1
+                     SKIP_GHOST1_CHECK1:
+
+                     CMP EXISTS_GHOST2, 1
+                     JNE SKIP_GHOST2_CHECK1
+                        CALL CHECK_HIT_GHOST2_TANK1
+                     SKIP_GHOST2_CHECK1:
+
+                     CMP EXISTS_GHOST3, 1
+                     JNE SKIP_GHOST3_CHECK1
+                        CALL CHECK_HIT_GHOST3_TANK1
+                     SKIP_GHOST3_CHECK1:
+               ;}
+
+               ;{SIMILAR CHECKS FOR COLLISIONS BETWEEN THE GHOSTS AND TANK 2 IF THE GHOST EXISTS
+                     CMP EXISTS_GHOST1, 1
+                     JNE SKIP_GHOST1_CHECK2
+                        CALL CHECK_HIT_GHOST1_TANK2
+                     SKIP_GHOST1_CHECK2:
+
+                     CMP EXISTS_GHOST2, 1
+                     JNE SKIP_GHOST2_CHECK2
+                        CALL CHECK_HIT_GHOST2_TANK2
+                     SKIP_GHOST2_CHECK2:
+
+                     CMP EXISTS_GHOST3, 1
+                     JNE SKIP_GHOST3_CHECK3
+                        CALL CHECK_HIT_GHOST3_TANK2
+                     SKIP_GHOST3_CHECK3:
+               ;}
+
+               ;{USELESS BLOCK TO HANDLE JUMP OUT OF RANGE
+                  JMP SKIP1
+                  ENDPROGRAM1: JMP ENDPROGRAM
+                  SKIP1:
+               ;}
                      CALL   DRAW_TANK1
                      CALL   DRAW_TANK2
                      CALL   DRAW_GHOST1
                      CALL   DRAW_GHOST2
                      CALL   DRAW_GHOST3
+                     CALL MOVE_BULLET_1
+                     CALL MOVE_BULLET_2
 
+               ;{BEFORE CHECKING COLLISION WE MUST MAKE SURE THE BULLET EXISTS IN THE FIRST PLACE
+                     ;CHECK HITTING ANY GHOST
+                     CMP BULLET_1_STATUS,1
+                     JNE SKIP_BUL1_CHECKS1
+                           CALL CHECK_HIT_BUL1_GHOST1
+                     SKIP_BUL1_CHECKS1:
+
+                     CMP BULLET_1_STATUS,1
+                     JNE SKIP_BUL1_CHECKS2
+                           CALL CHECK_HIT_BUL1_GHOST2
+                     SKIP_BUL1_CHECKS2:
+
+                     CMP BULLET_1_STATUS,1
+                     JNE SKIP_BUL1_CHECKS3
+                           CALL CHECK_HIT_BUL1_GHOST3
+                     SKIP_BUL1_CHECKS3:
+                     ;MAKE SURE IT STILL EXISTS CHECK HITTING THE TANK
+                     CMP BULLET_1_STATUS,1
+                     JNE SKIP_BUL1_CHECKS4
+                           CALL CHECK_HIT_BUL1_TANK2
+                     SKIP_BUL1_CHECKS4:
+               ;}
+
+               ;{SIMILAR CHECKS FOR BULLET 2
+                     ;CHECK HITTING ANY GHOST
+                     CMP BULLET_2_STATUS,1
+                     JNE SKIP_BUL2_CHECKS1
+                           CALL CHECK_HIT_BUL2_GHOST1
+                     SKIP_BUL2_CHECKS1:
+
+                     CMP BULLET_2_STATUS,1
+                     JNE SKIP_BUL2_CHECKS2
+                           CALL CHECK_HIT_BUL2_GHOST2
+                     SKIP_BUL2_CHECKS2:
+
+                     CMP BULLET_2_STATUS,1
+                     JNE SKIP_BUL2_CHECKS3
+                           CALL CHECK_HIT_BUL2_GHOST3
+                     SKIP_BUL2_CHECKS3:
+                     ;MAKE SURE IT STILL EXISTS CHECK HITTING THE TANK
+                     CMP BULLET_2_STATUS,1
+                     JNE SKIP_BUL2_CHECKS4
+                           CALL CHECK_HIT_BUL2_TANK1
+                     SKIP_BUL2_CHECKS4:
+               ;}
+
+                     CALL DRAW_BULLET_1
+                     CALL DRAW_BULLET_2
+                    
 
                ;{ DELAY 0.125 SECOND  WHERE DELAY IN MELLISECOND IS CXDX  CX AND MSB AND DX AS LSB
                      MOV     CX, 00H
@@ -1684,7 +1882,7 @@ MAIN                PROC FAR
                      MOV     AH, 86H
                      INT     15H
                ;}
-      
+               
                ;{ IF(USER PRESS ANY KEY)
                      MOV    AH, 1
                      INT    16H
@@ -1704,6 +1902,16 @@ MAIN                PROC FAR
                      INT    21H
                ;}
 MAIN                ENDP   
+
+;------------------------------------------------------------------------------------
+;  _    _   _____  ______  _____    _____  _   _  _____   _    _  _______  
+; | |  | | / ____||  ____||  __ \  |_   _|| \ | ||  __ \ | |  | ||__   __| 
+; | |  | || (___  | |__   | |__) |   | |  |  \| || |__) || |  | |   | |    
+; | |  | | \___ \ |  __|  |  _  /    | |  | . ` ||  ___/ | |  | |   | |    
+; | |__| | ____) || |____ | | \ \   _| |_ | |\  || |     | |__| |   | |    
+;  \____/ |_____/ |______||_|  \_\ |_____||_| \_||_|      \____/    |_|    
+;------------------------------------------------------------------------------------                                                                         
+                                                                          
 
 ;------------------------------------------------------------------------
 ; CLEARS KEYBOARD BUFFER
@@ -1778,12 +1986,20 @@ USERINPUT PROC
       ORIENT_DOWN1:
       ;{
          CMP    AL, 'e' 
-         JNE    MOVEUP2
+         JNE    FIREBULLET1
          CMP    ORIENTATION_PLAYER1, 4
-         JE     BACKTOMAINLOOP
+         JE     BACKTOMAINLOOP_1
          ADD    ORIENTATION_PLAYER1, 1 
          BACKTOMAINLOOP_1:      ;JUST A MIDDLE JUMP TO USE IT FOR THE PREVIOUS LABELS
          JMP    BACKTOMAINLOOP         
+      ;}
+
+      FIREBULLET1:
+      ;{
+         CMP AL, 32 
+         JNE MOVEUP2
+         CALL FIRE_BULLET_1
+         JMP BACKTOMAINLOOP
       ;}
 
       MOVEUP2:
@@ -1826,11 +2042,19 @@ USERINPUT PROC
       ORIENT_DOWN2:
       ;{
          CMP    AL, 'u' 
-         JNE    EXITPROG
+         JNE    FIRE_BULLET_2
          CMP    ORIENTATION_PLAYER2, 4
          JE     BACKTOMAINLOOP
          ADD    ORIENTATION_PLAYER2, 1 
          JMP    BACKTOMAINLOOP          
+      ;}
+
+      FIRE_BULLET_2:
+      ;{
+         CMP AL , 13
+         JNE EXITPROG
+         CALL FIRE_BULLET2
+         JMP BACKTOMAINLOOP
       ;}
 
       EXITPROG:
@@ -1853,7 +2077,14 @@ USERINPUT PROC
       ;}   
 RET
 USERINPUT		ENDP 
-
+;----------------------------------------------------------------------------
+;  _______         _   _  _  __
+; |__   __| /\    | \ | || |/ /
+;    | |   /  \   |  \| || ' / 
+;    | |  / /\ \  | . ` ||  <  
+;    | | / ____ \ | |\  || . \ 
+;    |_|/_/    \_\|_| \_||_|\_\
+;----------------------------------------------------------------------------                              
 ;--------------------------------------------------------------------------
 ; DRAWS THE FIRST PLAYER'S TANK
 ;-------------------------------------------------------------------------
@@ -1874,7 +2105,21 @@ DRAW_TANK1 PROC
    ;}
 
    ;{ IF(ORIENTATION IS UP)
-      MOV    SI, OFFSET BITMAPUPPLAYER1  
+      MOV    SI, OFFSET BITMAPUPPLAYER1
+      
+      ;SET BULLET 1 STARTING POSITION X,Y
+      MOV AX, BX ;GET HALF THE TANK SIZE 
+      SHR AX , 1    
+      MOV DX, STARTPOS_X_PLAYER1
+      ADD DX, AX    ;ADD HALF THE SIZE OF THE TANK TO THE START REACH THE MIDPOINT OF THE UPPER EDGE
+      MOV AX ,BULLETSIZE ;DIVIDE BULLET SIZE BY 2
+      SHR AX, 1      
+      SUB DX, AX    ;SUBTRACT HALF THE BULLET SIZE TO GET TO THE BULLETSTART POS STARTPOS_X_PLAYER1
+      MOV BULLET_1_START_POSITION_X,DX
+      MOV CX, STARTPOS_Y_PLAYER1
+      SUB CX, BULLETSIZE   ;BULLET DRAWING STARTING POINT IS ABOVE THE CANON BY BULLET SIZE
+      MOV BULLET_1_START_POSITION_Y, CX
+
       JMP    DRAWTANK 
    ;}
    UPRIGHT:
@@ -1883,6 +2128,15 @@ DRAW_TANK1 PROC
          JNE    RIGHT
             ;{ IF(ORIENTATION IS UPRIGHT)
                MOV    SI, OFFSET BITMAPUPRIGHTPLAYER1
+
+               ;SET BULLET 1 STARTING POSITION X,Y
+               MOV DX, STARTPOS_X_PLAYER1
+               ADD DX, BX  ;MOVE TO THE TOP RIGHT VERTIX BY ADDING TANK SIZE
+               MOV BULLET_1_START_POSITION_X, DX
+               MOV DX, STARTPOS_Y_PLAYER1
+               SUB DX, BULLETSIZE
+               MOV BULLET_1_START_POSITION_Y, DX ;BULLET DRAWING STARTING POINT IS ABOVE THE CANON BY BULLET SIZE
+
                JMP    DRAWTANK  
             ;}
       ;}
@@ -1892,7 +2146,23 @@ DRAW_TANK1 PROC
          JNE    DOWNRIGHT
          ;{ IF(ORIENTATION IS RIGHT)
             MOV    SI, OFFSET BITMAPRIGHTPLAYER1
-            JMP    DRAWTANK  
+
+            ;SET BULLET 1 STARTING POSITION X,Y
+            MOV DX, STARTPOS_X_PLAYER1
+            ADD DX , BX   ;ADD THE TANK SIZE TO REACH THE TOP RIGHT VERTIX
+            MOV BULLET_1_START_POSITION_X, DX
+            MOV AX , BX ;GET HALF THE TANK SIZE
+            SHR AX, 1 
+            MOV DX, AX
+            MOV AX, BULLETSIZE
+            SHR AX, 1
+            SUB DX, AX  ;SUBTRACT HALF THE BULLETSIZE TO REACH TOP LEFT VERTIX OF THE BULLET
+            SUB DX, 6   ;A RANDOM NUMBER TO MAKE THE BULLET GET OUT OF THE CANON NOT BELOW IT 
+            MOV CX, STARTPOS_Y_PLAYER1
+            ADD CX, DX
+            MOV BULLET_1_START_POSITION_Y, CX             
+            
+              JMP DRAWTANK
          ;}
    ;}
    DOWNRIGHT:
@@ -1901,12 +2171,37 @@ DRAW_TANK1 PROC
          JNE    DOWN1
          ;{ IF(ORIENTATION IS DOWNRIGHT)
             MOV    SI, OFFSET BITMAPDOWNRIGHTPLAYER1
-            JMP    DRAWTANK  
+
+            ;SET BULLET 1 STARTING POSITION X,Y
+            MOV DX, STARTPOS_X_PLAYER1
+            ADD DX, BX ;ADD TANK SIZE TO REACH THE TOP RIGHT VERTIX OF THE TANK
+            MOV BULLET_1_START_POSITION_X, DX
+            MOV DX, STARTPOS_Y_PLAYER1
+            ADD DX, BX ;ADD THE TANK SIZE IN Y TO GO TO THE BOTTOM LEFT VERTIX
+            MOV BULLET_1_START_POSITION_Y, DX
+            
+            JMP DRAWTANK  
          ;}
-   ;}   
+   ;}
+
+    
    DOWN1:
    ;{
-         MOV    SI, OFFSET BITMAPDOWNPLAYER1   
+         MOV    SI, OFFSET BITMAPDOWNPLAYER1
+
+         ;SET BULLET 1 STARTING POSITION X,Y
+         MOV AX , BX ;GET HALF THE TANK SIZE
+         SHR AX,1
+         MOV DX, AX
+         MOV AX, BULLETSIZE
+         SHR AX,1
+         SUB DX, AX  ;SUBTRACT HALF THE BULLETSIZE TO REACH TOP LEFT VERTIX OF THE BULLET
+         MOV CX, STARTPOS_X_PLAYER1
+         ADD CX, DX
+         MOV BULLET_1_START_POSITION_X, CX
+         MOV DX,STARTPOS_Y_PLAYER1
+         ADD DX, BX  ;ADD TANK SIZE TO REACH THE BOTTOM END
+         MOV BULLET_1_START_POSITION_Y, DX              
    ;}
    DRAWTANK:
    ;{
@@ -1939,6 +2234,20 @@ DRAW_TANK2 PROC
    JNE    UPLEFT
    ;{ IF(ORIENTATION IS UP)
       MOV    SI, OFFSET BITMAPUPPLAYER2 
+
+      ;SET BULLET 2 STARTING POSITION X,Y
+      MOV AX, BX ;GET HALF THE TANK SIZE 
+      SHR AX , 1    
+      MOV DX, STARTPOS_X_PLAYER2
+      ADD DX, AX    ;ADD HALF THE SIZE OF THE TANK TO THE START REACH THE MIDPOINT OF THE UPPER EDGE
+      MOV AX ,BULLETSIZE ;DIVIDE BULLET SIZE BY 2
+      SHR AX, 1      
+      SUB DX, AX    ;SUBTRACT HALF THE BULLET SIZE TO GET TO THE BULLETSTART POS STARTPOS_X_PLAYER1
+      MOV BULLET_2_START_POSITION_X,DX
+      MOV CX, STARTPOS_Y_PLAYER2
+      SUB CX, BULLETSIZE   ;BULLET DRAWING STARTING POINT IS ABOVE THE CANON BY BULLET SIZE
+      MOV BULLET_2_START_POSITION_Y, CX
+      
       JMP    DRAWTANK2
    ;}
    UPLEFT: 
@@ -1947,6 +2256,16 @@ DRAW_TANK2 PROC
       JNE    LEFT
          ;{ IF(ORIENTATION IS UPLEFT)
             MOV    SI, OFFSET BITMAPUPLEFTPLAYER2
+
+            ;SET BULLET 2 STARTING POSITION X,Y
+            MOV DX, BULLETSIZE
+            MOV CX, STARTPOS_X_PLAYER2
+            SUB CX, DX 
+            MOV BULLET_2_START_POSITION_X, CX
+            MOV CX, STARTPOS_Y_PLAYER2
+            SUB CX , DX 
+            MOV BULLET_2_START_POSITION_Y, CX
+            
             JMP    DRAWTANK2  
          ;}
    ;}
@@ -1956,6 +2275,24 @@ DRAW_TANK2 PROC
       JNE    DOWNLEFT
          ;{ IF(ORIENTATION IS LEFT)
             MOV    SI, OFFSET BITMAPLEFTPLAYER2
+
+            ;SET BULLET 2 STARTING POSITION X,Y
+            MOV DX, BULLETSIZE
+            MOV CX, STARTPOS_X_PLAYER2 
+            SUB CX, DX                    ;SUBTRACT BULLET SIZE TO REACH THE TOP LEFT CORNER OF THE BULLET GRID
+            MOV BULLET_2_START_POSITION_X, CX
+
+            MOV AX , BX ;GET HALF THE TANK SIZE
+            SHR AX, 1 
+            MOV DX, AX
+            MOV AX, BULLETSIZE
+            SHR AX, 1
+            SUB DX, AX  ;SUBTRACT HALF THE BULLETSIZE TO REACH TOP LEFT VERTIX OF THE BULLET
+            SUB DX, 6   ;A RANDOM NUMBER TO MAKE THE BULLET GET OUT OF THE CANON NOT BELOW IT 
+            MOV CX, STARTPOS_Y_PLAYER2
+            ADD CX, DX
+            MOV BULLET_2_START_POSITION_Y, CX  
+
             JMP    DRAWTANK2  
          ;}
    ;}   
@@ -1965,12 +2302,37 @@ DRAW_TANK2 PROC
       JNE    DOWN2
          ;{ IF(ORIENTATION IS DOWNLEFT)
             MOV    SI, OFFSET BITMAPDOWNLEFTPLAYER2
+
+            ;SET BULLET 2 STARTING POSITION X,Y
+            MOV DX, BULLETSIZE
+            MOV CX, STARTPOS_X_PLAYER2
+            SUB CX, DX        ;SUBTRACT BULLET SIZE FROM STATRING POSITION TO REACH TOP LEFT VERTIX OF THE BULLET GRID
+            MOV BULLET_2_START_POSITION_X, CX
+            MOV CX, STARTPOS_Y_PLAYER2
+            ADD CX, BX
+            MOV BULLET_2_START_POSITION_Y, CX
+
             JMP    DRAWTANK2  
          ;}
    ;}
    DOWN2:
    ;{
-      MOV    SI, OFFSET BITMAPDOWNPLAYER2   
+      MOV    SI, OFFSET BITMAPDOWNPLAYER2
+
+      ;SET BULLET 2 STARTING POSITION X,Y
+      MOV AX , BX ;GET HALF THE TANK SIZE
+      SHR AX,1
+      MOV DX, AX
+      MOV AX, BULLETSIZE
+      SHR AX,1
+      SUB DX, AX  ;SUBTRACT HALF THE BULLETSIZE TO REACH TOP LEFT VERTIX OF THE BULLET
+      MOV CX, STARTPOS_X_PLAYER2
+      ADD CX, DX
+      MOV BULLET_2_START_POSITION_X, CX
+      MOV DX,STARTPOS_Y_PLAYER2
+      ADD DX, BX  ;ADD TANK SIZE TO REACH THE BOTTOM END
+      MOV BULLET_2_START_POSITION_Y, DX
+
    ;}
    DRAWTANK2:
    ;{
@@ -1985,7 +2347,14 @@ DRAW_TANK2 PROC
 RET
 ;}
 DRAW_TANK2	ENDP
- 
+;-------------------------------------------------------------------------------
+;   _____  _    _   ____    _____  _______ 
+;  / ____|| |  | | / __ \  / ____||__   __|
+; | |  __ | |__| || |  | || (___     | |   
+; | | |_ ||  __  || |  | | \___ \    | |   
+; | |__| || |  | || |__| | ____) |   | |   
+;  \_____||_|  |_| \____/ |_____/    |_|   
+;-------------------------------------------------------------------------------
 ;--------------------------------------------------------------------------
 ; MAKES RANDOM PLACE FOR THE FIRST GHOST
 ;-------------------------------------------------------------------------
@@ -2353,12 +2722,646 @@ MOVE_GHOST3 PROC
 ;} 
 MOVE_GHOST3 ENDP
 
+;------------------------------------------------------------------------------------------
+ ; _             _  _        _        
+ ;| |           | || |      | |       
+ ;| |__   _   _ | || |  ___ | |_  ___ 
+ ;| '_ \ | | | || || | / _ \| __|/ __|
+ ;| |_) || |_| || || ||  __/| |_ \__ \
+ ;|_.__/  \__,_||_||_| \___| \__||___/
+ ;-------------------------------------------------------------------------------------------
+
+;---------------------------------------------------------------------------------------------------
+; FIRES A BULLET FROM TANK 1 CANON SET ITS MOTION TYPE ONLY CALLED TO INTIALIZE A BULLET ONCE FIRED
+;---------------------------------------------------------------------------------------------------
+FIRE_BULLET_1 PROC
+;{
+   PUSH AX
+   PUSH BX
+   PUSH CX
+   PUSH DX
+   
+   ;IF(BULLET_1_STATUS == 1) -> ANOTHER BULLET EXISTS WE CAN'T FIRE 
+   CMP BULLET_1_STATUS,1
+      JE RET_FIRE_BUL_1   
+   ;ELSE DRAW A BULLET AT START POSITION
+      MOV BULLET_1_STATUS, 1 ;TO FIRE A BULLET
+      ;INITAILIZE WITH BULLET START POSTION
+      MOV BX , BULLET_1_START_POSITION_X
+      MOV BULLET_1_POSITION_X, BX
+      MOV BX, BULLET_1_START_POSITION_Y
+      MOV BULLET_1_POSITION_Y, BX
+      MOV BX, ORIENTATION_PLAYER1 ;INTIALIZED THE SAME AS THE TANK ORIENTAION
+      MOV BULLET_1_MOTION_TYPE, BX
+      CALL DRAW_BULLET_1    
+   
+   RET_FIRE_BUL_1:
+   POP DX
+   POP CX
+   POP BX
+   POP AX 
+   RET
+;}
+FIRE_BULLET_1 ENDP
+
+;------------------------------------------------------------------------------
+; DRAWS A BULLET 1 AT BULLET_POSTION_1 X , Y IF THE BULLET EXISTS (STATUS == 1)
+;------------------------------------------------------------------------------
+DRAW_BULLET_1 PROC
+;{   
+   PUSH AX
+   PUSH BX
+   PUSH CX
+   PUSH DX
+   ;IF(BULLET STATUS = 0) -> WE WILL NOT DRAW IT
+   CMP BULLET_1_STATUS, 1
+   JNE RET_DRW_BUL_11   
+   ;CHECK THE BULLET IS WITHIN BOUNDARIES
+   WITHIN_BOUNDARIES BULLET_1_POSITION_X, BULLET_1_POSITION_Y, BULLETSIZE , BULLET_1_STATUS ;RETURNS IN BULLETSTATUS 0 IF NOT WITHIN
+   ;IF(IT IS NOT WITHIN BOUNDARIES DONNOT DRAW)
+      CMP BULLET_1_STATUS, 1
+      RET_DRW_BUL_11:      ;USELESS LABEL FOR INTERMEDIATE JUMP
+      JNE RET_DRW_BUL_1
+      MOV BX , BULLETSIZE
+      MOV SI, OFFSET Bullet_1_Model
+      DRAW_OBJECT BX , SI , BULLET_1_POSITION_X, BULLET_1_POSITION_Y
+   RET_DRW_BUL_1:
+   POP DX
+   POP CX
+   POP BX
+   POP AX 
+   RET
+;}
+DRAW_BULLET_1 ENDP
+;------------------------------------------------------------------------------
+; MOVES BULLET 1 IF IT EXISTS ACCORDING TO ITS TYPE OF MOTION
+; NOTE BULLET SPEED IS CURRENTLY HARDCODED , INCREASING IT CAN BE DONE FROM THIS PROCEDURE 
+;------------------------------------------------------------------------------
+MOVE_BULLET_1 PROC 
+;{
+   PUSH AX
+   PUSH BX
+   PUSH CX
+   PUSH DX
+   ;IF(BULLETSTATUS == 0) -> BULLET DOESNT EXIST
+   CMP BULLET_1_STATUS, 0
+   JE RET_MOV_BUL_1
+   ;ELSE IF THE BULLET EXISTS IT WILL BE MOVED ACCORDING TO ITS MOTIONTYPE(0:UPWARDS, 1:UPRIGHT, 2:RIGHT, 3:DOWNRIGHT, 4:DOWN)
+   ;CHECK THAT IT WILL NOT GET OUT OF BOUNDARIES
+
+   ;{
+      CMP BULLET_1_MOTION_TYPE,0
+      JNE UPRIGHTB
+      SUB BULLET_1_POSITION_Y, 6
+      JMP RET_MOV_BUL_1
+   ;}
+   UPRIGHTB:
+   ;{
+      CMP BULLET_1_MOTION_TYPE,1
+      JNE RIGHTB
+      ADD BULLET_1_POSITION_X,4
+      SUB BULLET_1_POSITION_Y,4
+
+      JMP RET_MOV_BUL_1
+   ;}
+   RIGHTB:
+   ;{
+      CMP BULLET_1_MOTION_TYPE,2
+      JNE DOWNRIGHTB
+      ADD BULLET_1_POSITION_X, 15
+      
+      JMP RET_MOV_BUL_1 
+   ;}
+   DOWNRIGHTB:
+   ;{
+      CMP BULLET_1_MOTION_TYPE,3
+      JNE DOWNB
+      ADD BULLET_1_POSITION_Y, 4
+      ADD BULLET_1_POSITION_X, 4
+      JMP RET_MOV_BUL_1
+   ;}
+   DOWNB:
+   ;{
+      ADD BULLET_1_POSITION_Y, 6
+   ;}
+
+   RET_MOV_BUL_1:
+   POP DX
+   POP CX
+   POP BX
+   POP AX 
+   RET
+;}  
+MOVE_BULLET_1 ENDP
+
+;---------------------------------------------------------------------------------------------------
+; FIRES A BULLET FROM TANK 2 CANON SET ITS MOTION TYPE ONLY CALLED TO INTIALIZE A BULLET ONCE FIRED
+;---------------------------------------------------------------------------------------------------
+FIRE_BULLET2 PROC
+;{
+   PUSH AX
+   PUSH BX
+   PUSH CX
+   PUSH DX
+   
+   ;IF(BULLET_2_STATUS == 1) -> ANOTHER BULLET EXISTS WE CAN'T FIRE 
+   CMP BULLET_2_STATUS,1
+      JE RET_FIRE_BUL_2   
+   ;ELSE DRAW A BULLET AT START POSITION
+      MOV BULLET_2_STATUS, 1 ;TO FIRE A BULLET
+      ;INITAILIZE WITH BULLET START POSTION
+      MOV BX , BULLET_2_START_POSITION_X
+      MOV BULLET_2_POSITION_X, BX
+      MOV BX, BULLET_2_START_POSITION_Y
+      MOV BULLET_2_POSITION_Y, BX
+      MOV BX, ORIENTATION_PLAYER2 ;INTIALIZED THE SAME AS THE TANK ORIENTAION
+      MOV BULLET_2_MOTION_TYPE, BX
+      CALL DRAW_BULLET_2    
+   
+   RET_FIRE_BUL_2:
+   POP DX
+   POP CX
+   POP BX
+   POP AX 
+   RET
+;}
+FIRE_BULLET2 ENDP
+;------------------------------------------------------------------------------
+; DRAWS BULLET 2 AT BULLET_POSTION_1 X , Y IF THE BULLET EXISTS (STATUS == 1)
+;------------------------------------------------------------------------------
+DRAW_BULLET_2 PROC
+;{   
+   PUSH AX
+   PUSH BX
+   PUSH CX
+   PUSH DX
+   ;IF(BULLET STATUS = 0) -> WE WILL NOT DRAW IT
+   CMP BULLET_2_STATUS, 1
+   JNE RET_DRW_BUL_22   
+   ;CHECK THE BULLET IS WITHIN BOUNDARIES
+   WITHIN_BOUNDARIES BULLET_2_POSITION_X, BULLET_2_POSITION_Y, BULLETSIZE , BULLET_2_STATUS ;RETURNS IN BULLETSTATUS 0 IF NOT WITHIN
+   ;IF(IT IS NOT WITHIN BOUNDARIES DONNOT DRAW)
+      CMP BULLET_2_STATUS, 1
+      RET_DRW_BUL_22:      ;USELESS LABEL FOR INTERMEDIATE JUMP
+      JNE RET_DRW_BUL_2
+      MOV BX , BULLETSIZE
+      MOV SI, OFFSET Bullet_2_Model
+      DRAW_OBJECT BX , SI , BULLET_2_POSITION_X, BULLET_2_POSITION_Y
+   RET_DRW_BUL_2:
+   POP DX
+   POP CX
+   POP BX
+   POP AX 
+   RET
+;}
+DRAW_BULLET_2 ENDP
+
+;-----------------------------------------------------------------------------------------
+; MOVES BULLET 2 IF IT EXISTS ACCORDING TO ITS TYPE OF MOTION
+; NOTE BULLET SPEED IS CURRENTLY HARDCODED , INCREASING IT CAN BE DONE FROM THIS PROCEDURE 
+;-----------------------------------------------------------------------------------------
+MOVE_BULLET_2 PROC 
+;{
+   PUSH AX
+   PUSH BX
+   PUSH CX
+   PUSH DX
+   ;IF(BULLETSTATUS == 0) -> BULLET DOESNT EXIST
+   CMP BULLET_2_STATUS, 0
+   JE RET_MOV_BUL_2
+   ;ELSE IF THE BULLET EXISTS IT WILL BE MOVED ACCORDING TO ITS MOTIONTYPE(0:UPWARDS, 1:UPLEFT, 2:LEFT, 3:DOWNLEFT, 4:DOWN)
+   ;CHECK THAT IT WILL NOT GET OUT OF BOUNDARIES
+
+   ;{
+      CMP BULLET_2_MOTION_TYPE,0
+      JNE UPLEFTB
+      SUB BULLET_2_POSITION_Y, 6
+      JMP RET_MOV_BUL_2
+   ;}
+   UPLEFTB:
+   ;{
+      CMP BULLET_2_MOTION_TYPE,1
+      JNE LEFTB
+      SUB BULLET_2_POSITION_X,4
+      SUB BULLET_2_POSITION_Y,4
+
+      JMP RET_MOV_BUL_2
+   ;}
+   LEFTB:
+   ;{
+      CMP BULLET_2_MOTION_TYPE,2
+      JNE DOWNLEFTB
+      SUB BULLET_2_POSITION_X, 15
+      
+      JMP RET_MOV_BUL_2 
+   ;}
+   DOWNLEFTB:
+   ;{
+      CMP BULLET_2_MOTION_TYPE,3
+      JNE DOWNB2
+      ADD BULLET_2_POSITION_Y, 4
+      SUB BULLET_2_POSITION_X, 4
+      JMP RET_MOV_BUL_2
+   ;}
+   DOWNB2:
+   ;{
+      ADD BULLET_2_POSITION_Y, 6
+   ;}
+
+   RET_MOV_BUL_2:
+   POP DX
+   POP CX
+   POP BX
+   POP AX 
+   RET
+;}  
+MOVE_BULLET_2 ENDP
+ 
+;-----------------------------------------------------------------------------------------
+;Detects if bullet 1 hits tank 2 
+;-----------------------------------------------------------------------------------------
+CHECK_HIT_BUL1_TANK2 PROC
+;{
+   PUSH AX
+   PUSH BX
+   PUSH CX
+   PUSH DX
+      DETECT_COLLISION STARTPOS_X_PLAYER2, STARTPOS_Y_PLAYER2, TANKSIZE, BULLET_1_POSITION_X, BULLET_1_POSITION_Y, BULLETSIZE, BULLET_1_STATUS
+      ;IF(BULLET1 STATUS == 0) -> THEN THERE IS A COLLISION 
+      ;BULLET1 SHOULD BE REMOVED WHILE TANK2 SHOULD LOSE HP ACCORDING TO BULLET DAMAGE
+      ;{
+         CMP BULLET_1_STATUS, 0
+         JNE NOHIT1
+         ;MAY BE SPLIT IN ANOTHER PROCEDURE JUSTFOR TESTING FOR NOW
+         ;SUBTRACT THE DAMAGE FROM TANK2
+         MOV AX, TANK_DMG_1
+         SUB TANK_HP_2, AX
+      ;}
+   NOHIT1:   
+   POP DX
+   POP CX
+   POP BX
+   POP AX
+   RET
+;}   
+CHECK_HIT_BUL1_TANK2 ENDP
+
+;-----------------------------------------------------------------------------------------
+;Detects if bullet 1 hits Ghost1 
+;-----------------------------------------------------------------------------------------
+CHECK_HIT_BUL1_GHOST1 PROC
+;{
+   PUSH AX
+   PUSH BX
+   PUSH CX
+   PUSH DX
+      ;(BULLET_1_STATUS IS 0 IF IT COLLIDES 1 OTHERWISE)
+      DETECT_COLLISION BULLET_1_POSITION_X, BULLET_1_POSITION_Y, BULLETSIZE, STARTPOS_X_GHOST1, STARTPOS_Y_GHOST1, GHOSTSIZE, BULLET_1_STATUS     
+      CMP BULLET_1_STATUS, 0
+      JNE GHOST1_LIVES
+      ;GHOST 1 SHOULD DIE, WE MAY CHECK FOR POWER-UPS HERE
+      MOV EXISTS_GHOST1, 0
+      ;THROW GHOST1 OUT OF BOUNDARIES TO AVOID BEING HIT WHILE TRANSPARENT
+      SUB STARTPOS_Y_GHOST1, 600
+   GHOST1_LIVES:   
+   POP DX
+   POP CX
+   POP BX
+   POP AX
+   RET
+;}   
+CHECK_HIT_BUL1_GHOST1 ENDP
+
+;-----------------------------------------------------------------------------------------
+;Detects if bullet 1 hits Ghost2 
+;-----------------------------------------------------------------------------------------
+CHECK_HIT_BUL1_GHOST2 PROC
+;{
+   PUSH AX
+   PUSH BX
+   PUSH CX
+   PUSH DX
+      ;(BULLET_1_STATUS IS 0 IF IT COLLIDES 1 OTHERWISE)
+      DETECT_COLLISION BULLET_1_POSITION_X, BULLET_1_POSITION_Y, BULLETSIZE, STARTPOS_X_GHOST2, STARTPOS_Y_GHOST2, GHOSTSIZE, BULLET_1_STATUS     
+      CMP BULLET_1_STATUS, 0
+      JNE GHOST2_LIVES
+      ;GHOST 1 SHOULD DIE, WE MAY CHECK FOR POWER-UPS HERE
+      MOV EXISTS_GHOST2, 0
+      ;THROW GHOST1 OUT OF BOUNDARIES TO AVOID BEING HIT WHILE TRANSPARENT
+      SUB STARTPOS_Y_GHOST2, 600
+   GHOST2_LIVES:   
+   POP DX
+   POP CX
+   POP BX
+   POP AX
+   RET
+;}   
+CHECK_HIT_BUL1_GHOST2 ENDP
+
+;-----------------------------------------------------------------------------------------
+;Detects if bullet 1 hits Ghost3 
+;-----------------------------------------------------------------------------------------
+CHECK_HIT_BUL1_GHOST3 PROC
+;{
+   PUSH AX
+   PUSH BX
+   PUSH CX
+   PUSH DX
+      ;(BULLET_1_STATUS IS 0 IF IT COLLIDES 1 OTHERWISE)
+      DETECT_COLLISION BULLET_1_POSITION_X, BULLET_1_POSITION_Y, BULLETSIZE, STARTPOS_X_GHOST3, STARTPOS_Y_GHOST3, GHOSTSIZE, BULLET_1_STATUS     
+      CMP BULLET_1_STATUS, 0
+      JNE GHOST3_LIVES
+      ;GHOST 1 SHOULD DIE, WE MAY CHECK FOR POWER-UPS HERE
+      MOV EXISTS_GHOST3, 0
+      ;THROW GHOST1 OUT OF BOUNDARIES TO AVOID BEING HIT WHILE TRANSPARENT
+      SUB STARTPOS_Y_GHOST3, 600
+   GHOST3_LIVES:   
+   POP DX
+   POP CX
+   POP BX
+   POP AX
+   RET
+;}   
+CHECK_HIT_BUL1_GHOST3 ENDP
 
 
+;-----------------------------------------------------------------------------------------
+;Detects if bullet 2 hits tank 1 
+;-----------------------------------------------------------------------------------------
+CHECK_HIT_BUL2_TANK1 PROC
+;{
+   PUSH AX
+   PUSH BX
+   PUSH CX
+   PUSH DX
+      DETECT_COLLISION STARTPOS_X_PLAYER1, STARTPOS_Y_PLAYER1, TANKSIZE, BULLET_2_POSITION_X, BULLET_2_POSITION_Y, BULLETSIZE, BULLET_2_STATUS
+      ;IF(BULLET1 STATUS == 0) -> THEN THERE IS A COLLISION 
+      ;BULLET1 SHOULD BE REMOVED WHILE TANK2 SHOULD LOSE HP ACCORDING TO BULLET DAMAGE
+      ;{
+         CMP BULLET_2_STATUS, 0
+         JNE NOHIT2
+         ;MAY BE SPLIT IN ANOTHER PROCEDURE JUSTFOR TESTING FOR NOW
+         ;SUBTRACT THE DAMAGE FROM TANK2
+         MOV AX, TANK_DMG_2
+         SUB TANK_HP_1, AX
+      ;}
+   NOHIT2:   
+   POP DX
+   POP CX
+   POP BX
+   POP AX
+   RET
+;}   
+CHECK_HIT_BUL2_TANK1 ENDP
 
+;-----------------------------------------------------------------------------------------
+;Detects if bullet 2 hits Ghost1 
+;-----------------------------------------------------------------------------------------
+CHECK_HIT_BUL2_GHOST1 PROC
+;{
+   PUSH AX
+   PUSH BX
+   PUSH CX
+   PUSH DX
+      ;(BULLET_1_STATUS IS 0 IF IT COLLIDES 1 OTHERWISE)
+      DETECT_COLLISION BULLET_2_POSITION_X, BULLET_2_POSITION_Y, BULLETSIZE, STARTPOS_X_GHOST1, STARTPOS_Y_GHOST1, GHOSTSIZE, BULLET_2_STATUS     
+      CMP BULLET_2_STATUS, 0
+      JNE GHOST1_LIVES2
+      ;GHOST 1 SHOULD DIE, WE MAY CHECK FOR POWER-UPS HERE
+      MOV EXISTS_GHOST1, 0
+      ;THROW GHOST1 OUT OF BOUNDARIES TO AVOID BEING HIT WHILE TRANSPARENT
+      SUB STARTPOS_Y_GHOST1, 600
+   GHOST1_LIVES2:   
+   POP DX
+   POP CX
+   POP BX
+   POP AX
+   RET
+;}   
+CHECK_HIT_BUL2_GHOST1 ENDP
 
+;-----------------------------------------------------------------------------------------
+;Detects if bullet 2 hits Ghost2 
+;-----------------------------------------------------------------------------------------
+CHECK_HIT_BUL2_GHOST2 PROC
+;{
+   PUSH AX
+   PUSH BX
+   PUSH CX
+   PUSH DX
+      ;(BULLET_1_STATUS IS 0 IF IT COLLIDES 1 OTHERWISE)
+      DETECT_COLLISION BULLET_2_POSITION_X, BULLET_2_POSITION_Y, BULLETSIZE, STARTPOS_X_GHOST2, STARTPOS_Y_GHOST2, GHOSTSIZE, BULLET_2_STATUS     
+      CMP BULLET_2_STATUS, 0
+      JNE GHOST2_LIVES2
+      ;GHOST 1 SHOULD DIE, WE MAY CHECK FOR POWER-UPS HERE
+      MOV EXISTS_GHOST2, 0
+      ;THROW GHOST1 OUT OF BOUNDARIES TO AVOID BEING HIT WHILE TRANSPARENT
+      SUB STARTPOS_Y_GHOST2, 600
+   GHOST2_LIVES2:   
+   POP DX
+   POP CX
+   POP BX
+   POP AX
+   RET
+;}   
+CHECK_HIT_BUL2_GHOST2 ENDP
 
+;-----------------------------------------------------------------------------------------
+;Detects if bullet 2 hits Ghost3 
+;-----------------------------------------------------------------------------------------
+CHECK_HIT_BUL2_GHOST3 PROC
+;{
+   PUSH AX
+   PUSH BX
+   PUSH CX
+   PUSH DX
+      ;(BULLET_1_STATUS IS 0 IF IT COLLIDES 1 OTHERWISE)
+      DETECT_COLLISION BULLET_2_POSITION_X, BULLET_2_POSITION_Y, BULLETSIZE, STARTPOS_X_GHOST3, STARTPOS_Y_GHOST3, GHOSTSIZE, BULLET_2_STATUS     
+      CMP BULLET_2_STATUS, 0
+      JNE GHOST3_LIVES2
+      ;GHOST 1 SHOULD DIE, WE MAY CHECK FOR POWER-UPS HERE
+      MOV EXISTS_GHOST3, 0
+      ;THROW GHOST1 OUT OF BOUNDARIES TO AVOID BEING HIT WHILE TRANSPARENT
+      SUB STARTPOS_Y_GHOST3, 600
+   GHOST3_LIVES2:   
+   POP DX
+   POP CX
+   POP BX
+   POP AX
+   RET
+;}   
+CHECK_HIT_BUL2_GHOST3 ENDP
 
+;---------------------------------------------------------------------------------------
+;   _____  _    _   ____    _____  _______            _______         _   _  _  __
+;  / ____|| |  | | / __ \  / ____||__   __|   ___    |__   __| /\    | \ | || |/ /
+; | |  __ | |__| || |  | || (___     | |     ( _ )      | |   /  \   |  \| || ' / 
+; | | |_ ||  __  || |  | | \___ \    | |     / _ \/\    | |  / /\ \  | . ` ||  <  
+; | |__| || |  | || |__| | ____) |   | |    | (_>  <    | | / ____ \ | |\  || . \ 
+;  \_____||_|  |_| \____/ |_____/    |_|     \___/\/    |_|/_/    \_\|_| \_||_|\_\
+;---------------------------------------------------------------------------------------
+
+;---------------------------------------------------------------------------------------
+;CHECK IF GHOST1 HITS TANK 1
+;---------------------------------------------------------------------------------------
+CHECK_HIT_GHOST1_TANK1 PROC
+   PUSH AX
+   PUSH BX
+   PUSH CX
+   PUSH DX
+      DETECT_COLLISION STARTPOS_X_PLAYER1, STARTPOS_Y_PLAYER1, TANKSIZE, STARTPOS_X_GHOST1, STARTPOS_Y_GHOST1, GHOSTSIZE, EXISTS_GHOST1
+      ;{IF GHOST1 COLLIDED -> EXISTS = 0
+         CMP EXISTS_GHOST1,0
+         JNE TANK1_SAFE1
+      ;MOVE GHOST1 OUT OF BOUNDARIES TO AVOID COLLIDING WITH BULLETS WHILE BEING TRANSPARENT
+         SUB STARTPOS_Y_GHOST1, 600   
+      ;REDUCE THE TANK HP, WILL BE SPLIT IN A DIFFERENT PROC
+         MOV AX, TANK_HP_1
+         DEC AX
+         ;CHECK IF THE TANK LIFE POINTS IS STILL ABOVE 0
+      ;}   
+   TANK1_SAFE1:   
+   POP DX
+   POP BX
+   POP CX
+   POP DX
+   RET
+CHECK_HIT_GHOST1_TANK1 ENDP
+
+;---------------------------------------------------------------------------------------
+;CHECK IF GHOST2 HITS TANK 1
+;---------------------------------------------------------------------------------------
+CHECK_HIT_GHOST2_TANK1 PROC
+   PUSH AX
+   PUSH BX
+   PUSH CX
+   PUSH DX
+      DETECT_COLLISION STARTPOS_X_PLAYER1, STARTPOS_Y_PLAYER1, TANKSIZE, STARTPOS_X_GHOST2, STARTPOS_Y_GHOST2, GHOSTSIZE, EXISTS_GHOST2
+      ;{IF GHOST1 COLLIDED -> EXISTS = 0
+         CMP EXISTS_GHOST2,0
+         JNE TANK1_SAFE2
+      ;MOVE GHOST1 OUT OF BOUNDARIES TO AVOID COLLIDING WITH BULLETS WHILE BEING TRANSPARENT
+         SUB STARTPOS_Y_GHOST2, 600   
+      ;REDUCE THE TANK HP, WILL BE SPLIT IN A DIFFERENT PROC
+         MOV AX, TANK_HP_1
+         DEC AX
+         ;CHECK IF THE TANK LIFE POINTS IS STILL ABOVE 0
+      ;}   
+   TANK1_SAFE2:   
+   POP DX
+   POP BX
+   POP CX
+   POP DX
+   RET
+CHECK_HIT_GHOST2_TANK1 ENDP
+
+;---------------------------------------------------------------------------------------
+;CHECK IF GHOST3 HITS TANK 1
+;---------------------------------------------------------------------------------------
+CHECK_HIT_GHOST3_TANK1 PROC
+   PUSH AX
+   PUSH BX
+   PUSH CX
+   PUSH DX
+      DETECT_COLLISION STARTPOS_X_PLAYER1, STARTPOS_Y_PLAYER1, TANKSIZE, STARTPOS_X_GHOST3, STARTPOS_Y_GHOST3, GHOSTSIZE, EXISTS_GHOST3
+      ;{IF GHOST1 COLLIDED -> EXISTS = 0
+         CMP EXISTS_GHOST3,0
+         JNE TANK1_SAFE3
+      ;MOVE GHOST1 OUT OF BOUNDARIES TO AVOID COLLIDING WITH BULLETS WHILE BEING TRANSPARENT
+         SUB STARTPOS_Y_GHOST3, 600   
+      ;REDUCE THE TANK HP, WILL BE SPLIT IN A DIFFERENT PROC
+         MOV AX, TANK_HP_1
+         DEC AX
+         ;CHECK IF THE TANK LIFE POINTS IS STILL ABOVE 0
+      ;}   
+   TANK1_SAFE3:   
+   POP DX
+   POP BX
+   POP CX
+   POP DX
+   RET
+CHECK_HIT_GHOST3_TANK1 ENDP
+
+;---------------------------------------------------------------------------------------
+;CHECK IF GHOST1 HITS TANK 2
+;---------------------------------------------------------------------------------------
+CHECK_HIT_GHOST1_TANK2 PROC
+   PUSH AX
+   PUSH BX
+   PUSH CX
+   PUSH DX
+      DETECT_COLLISION STARTPOS_X_PLAYER2, STARTPOS_Y_PLAYER2, TANKSIZE, STARTPOS_X_GHOST1, STARTPOS_Y_GHOST1, GHOSTSIZE, EXISTS_GHOST1
+      ;{IF GHOST1 COLLIDED -> EXISTS = 0
+         CMP EXISTS_GHOST1,0
+         JNE TANK2_SAFE1
+      ;MOVE GHOST1 OUT OF BOUNDARIES TO AVOID COLLIDING WITH BULLETS WHILE BEING TRANSPARENT
+         SUB STARTPOS_Y_GHOST1, 600   
+      ;REDUCE THE TANK HP, WILL BE SPLIT IN A DIFFERENT PROC
+         MOV AX, TANK_HP_2
+         DEC AX
+         ;CHECK IF THE TANK LIFE POINTS IS STILL ABOVE 0
+      ;}   
+   TANK2_SAFE1:   
+   POP DX
+   POP BX
+   POP CX
+   POP DX
+   RET
+CHECK_HIT_GHOST1_TANK2 ENDP
+
+;---------------------------------------------------------------------------------------
+;CHECK IF GHOST2 HITS TANK 2
+;---------------------------------------------------------------------------------------
+CHECK_HIT_GHOST2_TANK2 PROC
+   PUSH AX
+   PUSH BX
+   PUSH CX
+   PUSH DX
+      DETECT_COLLISION STARTPOS_X_PLAYER2, STARTPOS_Y_PLAYER2, TANKSIZE, STARTPOS_X_GHOST2, STARTPOS_Y_GHOST2, GHOSTSIZE, EXISTS_GHOST2
+      ;{IF GHOST1 COLLIDED -> EXISTS = 0
+         CMP EXISTS_GHOST2,0
+         JNE TANK2_SAFE2
+      ;MOVE GHOST1 OUT OF BOUNDARIES TO AVOID COLLIDING WITH BULLETS WHILE BEING TRANSPARENT
+         SUB STARTPOS_Y_GHOST2, 600   
+      ;REDUCE THE TANK HP, WILL BE SPLIT IN A DIFFERENT PROC
+         MOV AX, TANK_HP_2
+         DEC AX
+         ;CHECK IF THE TANK LIFE POINTS IS STILL ABOVE 0
+      ;}   
+   TANK2_SAFE2:   
+   POP DX
+   POP BX
+   POP CX
+   POP DX
+   RET
+CHECK_HIT_GHOST2_TANK2 ENDP
+
+;---------------------------------------------------------------------------------------
+;CHECK IF GHOST3 HITS TANK 2
+;---------------------------------------------------------------------------------------
+CHECK_HIT_GHOST3_TANK2 PROC
+   PUSH AX
+   PUSH BX
+   PUSH CX
+   PUSH DX
+      DETECT_COLLISION STARTPOS_X_PLAYER2, STARTPOS_Y_PLAYER2, TANKSIZE, STARTPOS_X_GHOST3, STARTPOS_Y_GHOST3, GHOSTSIZE, EXISTS_GHOST3
+      ;{IF GHOST1 COLLIDED -> EXISTS = 0
+         CMP EXISTS_GHOST3,0
+         JNE TANK2_SAFE3
+      ;MOVE GHOST1 OUT OF BOUNDARIES TO AVOID COLLIDING WITH BULLETS WHILE BEING TRANSPARENT
+         SUB STARTPOS_Y_GHOST3, 600   
+      ;REDUCE THE TANK HP, WILL BE SPLIT IN A DIFFERENT PROC
+         MOV AX, TANK_HP_2
+         DEC AX
+         ;CHECK IF THE TANK LIFE POINTS IS STILL ABOVE 0
+      ;}   
+   TANK2_SAFE3:   
+   POP DX
+   POP BX
+   POP CX
+   POP DX
+   RET
+CHECK_HIT_GHOST3_TANK2 ENDP
 
 END MAIN 
 
