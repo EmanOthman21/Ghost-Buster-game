@@ -1871,6 +1871,15 @@ MAIN                PROC FAR
                            CALL CHECK_HIT_BUL2_TANK1
                      SKIP_BUL2_CHECKS4:
                ;}
+               
+               ;{CHECK IF THE TWO BULLETS COLLIDE
+                     CMP BULLET_1_STATUS,1
+                     JNE SKIP_HITTING_CHECK
+                     CMP BULLET_2_STATUS,1 
+                     JNE SKIP_HITTING_CHECK
+                        CALL BULLETS_HIT
+                     SKIP_HITTING_CHECK:
+               ;}
 
                      CALL DRAW_BULLET_1
                      CALL DRAW_BULLET_2
@@ -3191,7 +3200,28 @@ CHECK_HIT_BUL2_GHOST3 PROC
    RET
 ;}   
 CHECK_HIT_BUL2_GHOST3 ENDP
-
+;-----------------------------------------------------------------------------------------
+;Detects The collision of The two bullets 
+;-----------------------------------------------------------------------------------------
+BULLETS_HIT PROC
+;{
+   PUSH AX
+   PUSH BX
+   PUSH CX
+   PUSH DX
+      ;DETECT THE COLLISION BETWEEN BOTH BULLETS
+      DETECT_COLLISION BULLET_1_POSITION_X, BULLET_1_POSITION_Y, BULLETSIZE, BULLET_2_POSITION_X,BULLET_2_POSITION_Y,BULLETSIZE, BULLET_1_STATUS
+      CMP BULLET_1_STATUS, 0
+      JNE NOT_HITTING
+      ;MAKE THE OTHER BULLET DISAPPEAR ALSO
+      MOV BULLET_2_STATUS, 0
+   NOT_HITTING:
+   POP DX
+   POP CX
+   POP BX
+   POP AX
+;}
+BULLETS_HIT ENDP
 ;---------------------------------------------------------------------------------------
 ;   _____  _    _   ____    _____  _______            _______         _   _  _  __
 ;  / ____|| |  | | / __ \  / ____||__   __|   ___    |__   __| /\    | \ | || |/ /
