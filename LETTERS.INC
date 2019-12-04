@@ -8,12 +8,6 @@ PUSH BX
 PUSH SI
 PUSH DI
 
-   ;{ OPEN VIDEO MODE
-         MOV    AX, 4F02H 
-         MOV    BX, 105H      
-         INT    10H   
-   ;}
-
 
        ;INITAL POINT
     MOV DX,STARTY ; Y = 250
@@ -57,11 +51,11 @@ PUSH DI
 
             ;}
             ;{
-                 ADD CX,2 * WDTH + 20
+                 ADD CX,2 * WDTH + 22
                  INT 10H
-                 ADD CX,WDTH - 10
+                 ADD CX,WDTH - 7
                  INT 10H
-                 SUB CX,3 * WDTH + 10
+                 SUB CX,3 * WDTH + 15
             ;}
         INC DX
         CMP DX,STARTY + HEGITH
@@ -95,7 +89,7 @@ PUSH DI
         JNZ RW
     MOV CX,STARTX
     INC DX
-    CMP DX,STARTY + HEGITH /2 + 10
+    CMP DX,STARTY + HEGITH / 2 + 10
     JNZ CLM
 ;}
  ; BACK TO INTAIL POINT TO DRAW HORIZONTAL 
@@ -105,12 +99,12 @@ PUSH DI
     ;{ THIS BLOCK JUST DRAW HORIZONTAL LINES OF GHOST WORD
     CLMN: 
         RWN:
-        ;{ HORIZONTAL LINS OF 'G'
+        ;{ HORIZONTAL LINS OF 'N'
             INT 10H
         ;}
             INC CX
             INC DX
-            CMP CX,STARTX + 3* WDTH + 20
+            CMP CX,STARTX + 3* WDTH + 17
         JNZ RWN
             ADD SI,1
             MOV CX,STARTX + 2* WDTH + 30
