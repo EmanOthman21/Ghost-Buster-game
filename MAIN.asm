@@ -1,80 +1,3 @@
-;-----------------------------------------------------------------------------------------------------------
-;  MACRO CHECK IF THE COLLISION OF TWO SQUARE GRIDS GIVEN THEIR SIZE AND UPPER LEFT VERTIX (START POSITION)
-;  COLLISION_STATUS = 0 IF THERE IS A COLLISION ELSE IT IS EQUAL TO ONE 
-;-----------------------------------------------------------------------------------------------------------
-DETECT_COLLISION MACRO STARTPOS_1X, STARTPOS_1Y, SIZE_1, STARTPOS_2X, STARTPOS_2Y, SIZE_2, COLLISION_STATUS
-    LOCAL COMMUTATEX, SKIP_COMMUTATEX, NO_COLLISION, COMMUTEY, SKIP_COMMUTATEY, END_DETECT_COLL
-    PUSH AX
-    PUSH BX
-    PUSH CX
-    PUSH DX
-    PUSH BP
-        ;DIVIDE THE FIRST SIZE BY 2
-        MOV CX, SIZE_1
-        SHR CX, 1
-        ;DIVIDE THE SECOND SIZE BY 2
-        MOV DX, SIZE_2
-        SHR DX, 1
-        ;GET THE SUPPOSED DISTANCE BETWEEN THEIR CENTERS
-        MOV BP , 0
-        ADD BP, DX
-        ADD BP, CX
-        ;INORDER TO MAKE SURE THE TWO SQUARES ARE COLLIDING NOT ONLY PASSING BY
-        SUB BP ,3 
-        ;GET THE ACTUAL DISTANCE BETWEEN THEIR CENTERS
-        ;GET THE CENTER X COORDINATE OF BOTH
-        MOV AX, STARTPOS_1X
-        ADD AX, CX
-        MOV BX, STARTPOS_2X
-        ADD BX, DX
-        ;SUBTRACT THE TWO X COORDINATES TO GET THE ACTUAL ABSOLUTE DISTANCE BETWEEN THEIR CENTERS IN X
-        CMP AX,BX
-        JL COMMUTATEX
-        SUB AX ,BX
-        CMP AX, BP
-        JA NO_COLLISION
-        JMP SKIP_COMMUTATEX
-        COMMUTATEX: 
-        ;{
-            SUB BX, AX
-            CMP BX, BP
-            JA NO_COLLISION
-        ;}    
-        SKIP_COMMUTATEX:
-        ;MAKE SIMILAR CHECKS TO THE ABOVE BUT IN Y COORDINATES
-        MOV AX, STARTPOS_1Y
-        ADD AX, CX
-        MOV BX, STARTPOS_2Y
-        ADD BX, DX
-        ;SUBTRACT THE TWO Y COORDINATES TO GET THE ACTUAL ABSOLUTE DISTANCE BETWEEN THEIR CENTERS IN Y
-        CMP AX, BX
-        JL COMMUTEY
-        SUB AX,BX
-        ;COMPARE WITH THE REQUIRED DISTANCE FOR COLLISION
-        CMP AX, BP
-        JA NO_COLLISION
-        JMP SKIP_COMMUTATEY
-        COMMUTEY:
-        ;{
-            SUB BX, AX
-            CMP BX, BP
-            JA NO_COLLISION
-        ;}    
-        SKIP_COMMUTATEY:
-        ;THEN THE TWO SQUARES COLLIDE
-        MOV COLLISION_STATUS, 0
-        JMP END_DETECT_COLL
-
-    NO_COLLISION:
-    MOV COLLISION_STATUS, 1    
-    END_DETECT_COLL:   
-    POP BP
-    POP DX
-    POP CX
-    POP BX
-    POP AX
-ENDM DETECT_COLLISION
-;------------------------------------------------------------------------------------------------
 INCLUDE RANDOM.INC
 INCLUDE PRINTNUM.INC
 INCLUDE BUNDRY.INC
@@ -82,7 +5,9 @@ INCLUDE DWOBJ.INC
 INCLUDE MENU.INC
 INCLUDE GHOST.INC
 INCLUDE BUSTERS.INC
-INCLUDE LETTERS.INC
+INCLUDE YWON.INC
+INCLUDE DRAW.INC
+INCLUDE DCOL.INC
                     .MODEL COMPACT;TINY   :DATA+CODE = 64KB    
                                 ;SMALL  :DATA = 64KB AND CODE = 64KB
                                 ;MEDIUM :DATA = 64KB BUT NO CODE RESTRICTION
@@ -1932,7 +1857,7 @@ MAIN                PROC FAR
 
                   DRAW_CASE :
                   ;(
-                   ;CALL DRAW 40,40,205,220
+                    DRAW 60,60,205,220,04
                     MOV    AH,4CH
                     INT    21H
                   ;)  
@@ -3779,7 +3704,7 @@ PLAYER_LOST PROC
          MOV    BX, 100H
          INT    10H
  
-YWN 40,40,150,220              ;DRAW YOU WON
+YWN 40,40,150,220,04              ;DRAW YOU WON
 
 CMP WINNER,1
 JNZ PLAYER2_WON
