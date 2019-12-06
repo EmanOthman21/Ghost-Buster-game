@@ -2492,7 +2492,7 @@ MAIN                PROC FAR
 
                   DRAW_CASE :
                   ;(
-                    DRAW 60,60,205,220,04
+                    DRAW 60,60,190,190,03
                     MOV    AH,4CH
                     INT    21H
                   ;)  
@@ -3589,7 +3589,13 @@ MOVE_BULLET_1 PROC
    ;{
       CMP BULLET_1_MOTION_TYPE,1
       JNE RIGHTB
+      CMP BULLET_1_SPEED_POWER_NUM,1
+      JA UP_RIGHT_SPEED
+      SUB AX,4
+      JMP UP_RIGHT_MOVEMENT
+   UP_RIGHT_SPEED: 
       SUB AX,8                            ;UP RIGHT SPEED =NORMAL SPEED - 8      (YOU CAN CHANGE IT)
+   UP_RIGHT_MOVEMENT:   
       ADD BULLET_1_POSITION_X,AX
       SUB BULLET_1_POSITION_Y,AX
       MOV AX,BULLET_1_SPEED               ;RESET AX=SPEED OF BULLET 
@@ -3606,7 +3612,13 @@ MOVE_BULLET_1 PROC
    ;{
       CMP BULLET_1_MOTION_TYPE,3
       JNE DOWNB
+      CMP BULLET_1_SPEED_POWER_NUM,1
+      JA DOWN_RIGHT_SPEED
+      SUB AX,4
+      JMP DOWN_RIGHT_MOVEMENT
+   DOWN_RIGHT_SPEED:
       SUB AX,8                           ;DOWN RIGHT SPEED =NORMAL SPEED - 8      (YOU CAN CHANGE IT)
+   DOWN_RIGHT_MOVEMENT:  
       ADD BULLET_1_POSITION_Y, AX
       ADD BULLET_1_POSITION_X, AX
       MOV AX,BULLET_1_SPEED
@@ -3713,7 +3725,13 @@ MOVE_BULLET_2 PROC
    ;{
       CMP BULLET_2_MOTION_TYPE,1
       JNE LEFTB
+      CMP BULLET_2_SPEED_POWER_NUM,1
+      JA UP_LEFT
+      SUB AX,5
+      JMP UP_LEFT_MOVEMENT
+   UP_LEFT:   
       SUB AX,8
+   UP_LEFT_MOVEMENT:   
       SUB BULLET_2_POSITION_X,AX
       SUB BULLET_2_POSITION_Y,AX
       MOV AX,BULLET_2_SPEED
@@ -3731,7 +3749,13 @@ MOVE_BULLET_2 PROC
    ;{
       CMP BULLET_2_MOTION_TYPE,3
       JNE DOWNB2
+      CMP BULLET_2_SPEED_POWER_NUM,1
+      JA DOWN_LEFT
+   SUB AX,5
+      JMP DOWN_LEFT_MOVEMENT
+   DOWN_LEFT:   
       SUB AX,8
+   DOWN_LEFT_MOVEMENT:
       ADD BULLET_2_POSITION_Y, AX
       SUB BULLET_2_POSITION_X, AX
       MOV AX,BULLET_2_SPEED
@@ -4513,18 +4537,17 @@ PLAYER_LOST PROC
          MOV    AX, 4F02H     ; THIS TO HANDLE FLICKERING WE REOPEN THE VIDEO MODE EVERYTIME 
          MOV    BX, 100H
          INT    10H
- 
-YWN 40,40,150,220,04              ;DRAW YOU WON
-
-CMP WINNER,1
+YWN 40,40,150,220,04                ;DRAW YOU WON WITH RED COLOR  
+CMP WINNER,1 
 JNZ PLAYER2_WON
-;(                                     DRAW TANK 1 IF PLAYER 1 IS THE WINNER
+;(                                  
    MOV SI,OFFSET BITMAP_UP_PLAYER1
-   DRAW_OBJECT TANKSIZE ,SI,280,100
+   DRAW_OBJECT TANKSIZE ,SI,280,100    ;DRAW TANK 1 IF PLAYER 1 IS THE WINNER
    JMP PRESS_TO_MENU
 ;)
 PLAYER2_WON:
 ;(
+   YWN 40,40,150,220,01              ;DRAW YOU WON WITH BLUE COLOR -OVEERWRITE THE RED ONE- 
    MOV SI,OFFSET BITMAP_UP_PLAYER2
    DRAW_OBJECT TANKSIZE ,SI,280,100 
 ;)
@@ -4538,7 +4561,7 @@ PRESS_TO_MENU:
 PLAYER_LOST ENDP
 ;--------------------------------------------------------------------------------------
 ;   _____  _   _  _______  ______  _____    ______             _____  ______
-;  |_   _|| \ | ||__   __||  ____||  __ \  |  ____|   /\      / ____||  ____|
+;  |_   _|| \ | ||__    __||  ____||  __ \  |  ____|   /\      / ____||  ____|
 ;    | |  |  \| |   | |   | |__   | |__) | | |__     /  \    | |     | |__ 
 ;    | |  | . ` |   | |   |  __|  |  _  /  |  __|   / /\ \   | |     |  __|
 ;   _| |_ | |\  |   | |   | |____ | | \ \  | |     / ____ \  | |____ | |____ 
