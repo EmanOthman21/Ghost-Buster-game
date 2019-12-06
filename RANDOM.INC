@@ -1,22 +1,34 @@
 ;-----------------------------------------------------------------------------
 ;  MACRO TO GET RANDOM NUMBER WITHIN A PROVIDED RANGE 
 ;-----------------------------------------------------------------------------
-RANDOMIZE MACRO LOWER, UPPER, NUMBER
+RANDOMIZE MACRO LOWER, UPPER, NUMBER, SEED 
+LOCAL SET, NODIVISION
    PUSH     AX
    PUSH     BX
    PUSH     CX
    PUSH     DX
 
-   MOV      AH, 2CH  ;GET SYSTEM TIME
-   INT      21H
+   MOV     AX, 25173          ; LCG MULTIPLIER 
+   MUL     WORD PTR SEED      ;DX:AX = LCG MULTIPLIER * SEED
+   ADD     AX, 13849          ; ADD LCG INCREMENT VALUE
+   ; MODULO 65536, AX = (MULTIPLIER*SEED+INCREMENT) MOD 65536
+   CMP     SEED, AX
+   JNE     SET
+   MOV     AH, 0
+   INT     1AH
+   MOV     SEED, DX    ; SEED WITH THE SYSTEM TIME
+   
+   SET:
+   MOV     SEED, AX          ; UPDATE SEED = RETURN VALUE
 
-   MOV      AL, DL
-   SUB      DL, DL
-   ADD      AX, DX
    SUB      DX, DX
    MOV      CX, UPPER
-   SUB      CX, LOWER
+   INC      CX
+   SUB      CX, LOWER 
+   CMP CX, 0 
+   JE NODIVISION
    DIV      CX     ;THIS DIVIDES AX/CX AND THE REMAINDER IS AT DX(NUMBER WITHIN RANGE OF THE SUBTRACTION UPPER - LOWER)
+   NODIVISION:
    ADD      DX, LOWER
    MOV      NUMBER, DX
 
@@ -24,4 +36,4 @@ RANDOMIZE MACRO LOWER, UPPER, NUMBER
    POP      CX
    POP      BX
    POP      AX
-ENDM RANDOMIZE 
+ENDM RANDOMIZE
