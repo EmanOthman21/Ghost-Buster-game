@@ -1,22 +1,8 @@
 Microsoft (R) Macro Assembler Version 5.10 
 Copyright (C) Microsoft Corp 1981, 1988.  All rights reserved.
 
-main.ASM(843): warning A4031: Operand types must match
-main.ASM(916): warning A4031: Operand types must match
-main.ASM(1093): warning A4001: Extra characters on line
-main.ASM(1102): warning A4001: Extra characters on line
-main.ASM(1109): warning A4001: Extra characters on line
-main.ASM(1110): warning A4001: Extra characters on line
-main.ASM(1201): warning A4001: Extra characters on line
-main.ASM(1210): warning A4001: Extra characters on line
-main.ASM(1217): warning A4001: Extra characters on line
-main.ASM(1218): warning A4001: Extra characters on line
-main.ASM(1307): warning A4001: Extra characters on line
-main.ASM(1316): warning A4001: Extra characters on line
-main.ASM(1323): warning A4001: Extra characters on line
-main.ASM(1324): warning A4001: Extra characters on line
 
-  49092 + 355742 Bytes symbol space free
+  49990 + 459320 Bytes symbol space free
 
-     14 Warning Errors
+      0 Warning Errors
       0 Severe  Errors

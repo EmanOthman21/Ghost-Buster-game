@@ -2,36 +2,4 @@
 Microsoft (R) Segmented Executable Linker  Version 5.31.009 Jul 13 1992
 Copyright (C) Microsoft Corp 1984-1992.  All rights reserved.
 
-
-main.obj(main.ASM) : error L2029: 'BITMAP_UPRIGHT_PLAYER1' : unresolved external
-main.obj(main.ASM) : error L2029: 'BITMAP_UPLEFT_PLAYER2' : unresolved external
-main.obj(main.ASM) : error L2029: 'PORTAL' : unresolved external
-main.obj(main.ASM) : error L2029: 'BITMAP_LEFT_PLAYER2' : unresolved external
-main.obj(main.ASM) : error L2029: 'GHOST1_0' : unresolved external
-main.obj(main.ASM) : error L2029: 'GHOST1_1' : unresolved external
-main.obj(main.ASM) : error L2029: 'GHOST1_2' : unresolved external
-main.obj(main.ASM) : error L2029: 'GHOST2_0' : unresolved external
-main.obj(main.ASM) : error L2029: 'GHOST2_1' : unresolved external
-main.obj(main.ASM) : error L2029: 'BITMAP_DOWN_PLAYER1' : unresolved external
-main.obj(main.ASM) : error L2029: 'GHOST2_2' : unresolved external
-main.obj(main.ASM) : error L2029: 'BULLET_1_MODEL' : unresolved external
-main.obj(main.ASM) : error L2029: 'GHOST3_0' : unresolved external
-main.obj(main.ASM) : error L2029: 'BULLET_2_MODEL' : unresolved external
-main.obj(main.ASM) : error L2029: 'GHOST3_1' : unresolved external
-main.obj(main.ASM) : error L2029: 'LOGO' : unresolved external
-main.obj(main.ASM) : error L2029: 'GHOST3_2' : unresolved external
-main.obj(main.ASM) : error L2029: 'BITMAP_DOWN_PLAYER2' : unresolved external
-main.obj(main.ASM) : error L2029: 'BITMAP_RIGHT_PLAYER1' : unresolved external
-main.obj(main.ASM) : error L2029: 'BITMAP_DOWNLEFT_PLAYER2' : unresolved external
-main.obj(main.ASM) : error L2029: 'DMG_PRUP_1' : unresolved external
-main.obj(main.ASM) : error L2029: 'DMG_PRUP_2' : unresolved external
-main.obj(main.ASM) : error L2029: 'SPD_PRUP_1' : unresolved external
-main.obj(main.ASM) : error L2029: 'SPD_PRUP_2' : unresolved external
-main.obj(main.ASM) : error L2029: 'BITMAP_UP_PLAYER1' : unresolved external
-main.obj(main.ASM) : error L2029: 'BITMAP_UP_PLAYER2' : unresolved external
-main.obj(main.ASM) : error L2029: 'RED_HEART' : unresolved external
-main.obj(main.ASM) : error L2029: 'WHITE_HEART' : unresolved external
-main.obj(main.ASM) : error L2029: 'BITMAP_DOWNRIGHT_PLAYER1' : unresolved external
-
-
-There were 29 errors detected
+LINK : warning L4021: no stack segment
