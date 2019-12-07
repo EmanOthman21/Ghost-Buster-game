@@ -44,16 +44,16 @@ INCLUDE BUSTERS.INC
 INCLUDE YWON.INC
 INCLUDE DRAW.INC
 INCLUDE DCOL.INC
-                    .MODEL COMPACT;TINY   :DATA+CODE = 64KB    
-                                ;SMALL  :DATA = 64KB AND CODE = 64KB
-                                ;MEDIUM :DATA = 64KB BUT NO CODE RESTRICTION
-                                ;COMPACT:CODE = 64KB BUT NO DATA RESTRICTION
-                                ;LARGE  :SINGLE SET OF DATA CAN NOT EXCEED 64KB
-                                ;HUGE   :NO RESTRICTION
+ .MODEL   LARGE;TINY   :DATA+CODE = 64KB    
+            ;SMALL  :DATA = 64KB AND CODE = 64KB
+            ;MEDIUM :DATA = 64KB BUT NO CODE RESTRICTION
+            ;COMPACT:CODE = 64KB BUT NO DATA RESTRICTION
+            ;LARGE  :SINGLE SET OF DATA CAN NOT EXCEED 64KB
+            ;HUGE   :NO RESTRICTION
 ;------------------------------------------------------
-                    .STACK 64   ;64 BYTES FOR STACK      
+.STACK 64   ;64 BYTES FOR STACK      
 ;------------------------------------------------------                    
-                    .DATA                           
+.DATA                           
 UPPERBOUND_Y DW 55   ;THOSE BOUNDARY VALUES ARE BASED ON 640*400 VIDEO MODE
 LOWERBOUND_Y DW 360
 LEFTBOUND_X DW 0
@@ -116,7 +116,7 @@ MOTION_GHOST1 DW 0   ; 0 INC X AND Y, 1 INC Y DEC X , 2 INC X DEC Y, 3 DEC X AND
 POWERUP_GHOST1 DW 0  ; 0 INCREASE HP, 1 INCREASE SPEED, 2 INCREASE DAMAGE 
 STARTPOS_X_PORTAL1 DW ? ;LOCATION OF THE GHOST PORTAL
 STARTPOS_Y_PORTAL1 DW ? ;LOCATION OF THE GHOST PORTAL
-TYPE_GHOST1 DB 0     ; TO CHOOSE ONE OF THREE SHAPES OF GHOSTS  (0, 1, 2)
+TYPE_GHOST1 DW 0     ; TO CHOOSE ONE OF THREE SHAPES OF GHOSTS  (0, 1, 2)
 
 
 STARTPOS_X_GHOST2 DW ?
@@ -126,7 +126,7 @@ MOTION_GHOST2 DW 1   ; 0 INC X AND Y, 1 INC Y DEC X , 2 INC X DEC Y, 3 DEC X AND
 POWERUP_GHOST2 DW 1  ; 0 INCREASE HP, 1 INCREASE SPEED, 2 INCREASE DAMAGE
 STARTPOS_X_PORTAL2 DW ? ;LOCATION OF THE GHOST PORTAL
 STARTPOS_Y_PORTAL2 DW ? ;LOCATION OF THE GHOST PORTAL
-TYPE_GHOST2 DB 0     ;TO CHOOSE ONE OF THREE SHPAES OF GHOSTS  (0, 1, 2)
+TYPE_GHOST2 DW 0     ;TO CHOOSE ONE OF THREE SHPAES OF GHOSTS  (0, 1, 2)
 
 
 STARTPOS_X_GHOST3 DW ?
@@ -168,7 +168,7 @@ MENUITEM3 DB 'PRESS ESC TO EXIT THE PROGRAM',10,13,'$'
 
 ;---------------------------------------------------------------------------------------------------------
 .CODE                                                 
-MAIN                PROC FAR        
+MAIN                PROC         
    MOV     AX,@DATA   
    MOV     DS,AX
    MOV     ES,AX      
@@ -388,7 +388,7 @@ MAIN                ENDP
 ;------------------------------------------------------------------------
 ; CLEARS KEYBOARD BUFFER
 ;--------------------------------------------------------------------------
-CLEARKEYBOARDBUFFER		PROC	NEAR
+CLEARKEYBOARDBUFFER		PROC NEAR
 	PUSH		AX
 	PUSH		ES
 	MOV		AX, 0000H
@@ -397,13 +397,13 @@ CLEARKEYBOARDBUFFER		PROC	NEAR
 	MOV		ES:[041CH], 041EH				; CLEARS KEYBOARD BUFFER
 	POP		ES
 	POP		AX
-	RET
+	RETN
 CLEARKEYBOARDBUFFER		ENDP 
 
 ;------------------------------------------------------------------------
 ; TAKE ACTION BASED ON USER INPUT
 ;--------------------------------------------------------------------------
-USERINPUT PROC 
+USERINPUT PROC NEAR 
 ;{    
       ;{SAVE DATA
          PUSH    AX
@@ -539,14 +539,14 @@ USERINPUT PROC
          INT    21H
       ;}
 
-      ;{RETURN STORED DATA
+      ;{RETNURN STORED DATA
          BACKTOMAINLOOP:
          POP DX
          POP CX
          POP BX
          POP AX
       ;}   
-RET
+RETN
 USERINPUT		ENDP 
 ;----------------------------------------------------------------------------
 ;  _______         _   _  _  __
@@ -560,7 +560,7 @@ USERINPUT		ENDP
 ; DRAWS THE FIRST PLAYER'S TANK
 ;-------------------------------------------------------------------------
 
-DRAW_TANK1 PROC 
+DRAW_TANK1 PROC NEAR 
 ;{
     ;{SAVE DATA  
       PUSH   AX
@@ -684,7 +684,7 @@ DRAW_TANK1 PROC
       POP BX
       POP AX
    ;}
-RET
+RETN
 ;}
 DRAW_TANK1	ENDP
 
@@ -692,7 +692,7 @@ DRAW_TANK1	ENDP
 ; DRAWS THE SECOND PLAYER'S TANK
 ;-------------------------------------------------------------------------
 
-DRAW_TANK2 PROC 
+DRAW_TANK2 PROC NEAR 
 ;{
    ;{STORE DATA
       PUSH    AX
@@ -815,7 +815,7 @@ DRAW_TANK2 PROC
       POP    BX
       POP    AX
    ;}
-RET
+RETN
 ;}
 DRAW_TANK2	ENDP
 ;-------------------------------------------------------------------------------
@@ -829,7 +829,7 @@ DRAW_TANK2	ENDP
 ;--------------------------------------------------------------------------
 ; MAKES RANDOM PLACE FOR THE FIRST GHOST
 ;-------------------------------------------------------------------------
-RANDOMIZE_GHOST1 PROC
+RANDOMIZE_GHOST1 PROC NEAR
 ;{
    ;{
       PUSH   AX
@@ -884,7 +884,7 @@ RANDOMIZE_GHOST1 PROC
    POP CX
    POP BX
    POP AX 
-   RET
+   RETN
 ;} 
 RANDOMIZE_GHOST1 ENDP
 
@@ -892,7 +892,7 @@ RANDOMIZE_GHOST1 ENDP
 ; MAKES RANDOM PLACE FOR THE SECOND GHOST
 ;-------------------------------------------------------------------------
 
-RANDOMIZE_GHOST2 PROC
+RANDOMIZE_GHOST2 PROC NEAR
 ;{
    PUSH AX
    PUSH BX
@@ -947,7 +947,7 @@ RANDOMIZE_GHOST2 PROC
    POP CX
    POP BX
    POP AX 
-   RET
+   RETN
 ;} 
 RANDOMIZE_GHOST2 ENDP
 
@@ -955,7 +955,7 @@ RANDOMIZE_GHOST2 ENDP
 ; MAKES RANDOM PLACE FOR THE THIRD GHOST
 ;-------------------------------------------------------------------------
 
-RANDOMIZE_GHOST3 PROC
+RANDOMIZE_GHOST3 PROC NEAR
 ;{
    PUSH AX
    PUSH BX
@@ -1011,7 +1011,7 @@ RANDOMIZE_GHOST3 PROC
    POP CX
    POP BX
    POP AX 
-   RET
+   RETN
 ;} 
 RANDOMIZE_GHOST3 ENDP
 
@@ -1019,7 +1019,7 @@ RANDOMIZE_GHOST3 ENDP
 ; DRAW THE FIRST GHOST
 ;-------------------------------------------------------------------------
 
-DRAW_GHOST1 PROC
+DRAW_GHOST1 PROC NEAR
 ;{
    PUSH AX
    PUSH BX
@@ -1061,7 +1061,7 @@ DRAW_GHOST1 PROC
    POP CX
    POP BX
    POP AX 
-   RET
+   RETN
 ;} 
 DRAW_GHOST1 ENDP
 
@@ -1069,7 +1069,7 @@ DRAW_GHOST1 ENDP
 ; MOVES THE FIRST GHOST
 ;-------------------------------------------------------------------------
 
-MOVE_GHOST1 PROC
+MOVE_GHOST1 PROC NEAR
 ;{
    PUSH AX
    PUSH BX
@@ -1090,7 +1090,7 @@ MOVE_GHOST1 PROC
    ;{ DOWNLEFT MOVEMENT
       CMP MOTION_GHOST1, 1
       JNE UPRIGHT_GHOST1
-      DEC STARTPOS_X_GHOST1, 3
+      SUB STARTPOS_X_GHOST1, 3
       ADD STARTPOS_Y_GHOST1, 3
       JMP ENDMOVE_GHOST1
    ;}
@@ -1099,15 +1099,15 @@ MOVE_GHOST1 PROC
       CMP MOTION_GHOST1, 2
       JNE UPLEFT_GHOST1
       ADD STARTPOS_X_GHOST1, 3
-      DEC STARTPOS_Y_GHOST1, 3
+      SUB STARTPOS_Y_GHOST1, 3
       JMP ENDMOVE_GHOST1
    ;}
    UPLEFT_GHOST1:
    ;{ UPLEFT MOVEMENT 
       CMP MOTION_GHOST1, 3
       ;JNE ENDMOVE_GHOST1
-      DEC STARTPOS_X_GHOST1, 3
-      DEC STARTPOS_Y_GHOST1, 3
+      SUB STARTPOS_X_GHOST1, 3
+      SUB STARTPOS_Y_GHOST1, 3
       JMP ENDMOVE_GHOST1
    ;}
    
@@ -1116,7 +1116,7 @@ MOVE_GHOST1 PROC
    POP CX
    POP BX
    POP AX 
-   RET
+   RETN
 ;} 
 MOVE_GHOST1 ENDP
 
@@ -1125,7 +1125,7 @@ MOVE_GHOST1 ENDP
 ;  DRAWS THE SECOND GHOST
 ;-------------------------------------------------------------------------
 
-DRAW_GHOST2 PROC
+DRAW_GHOST2 PROC NEAR
 ;{
    PUSH AX
    PUSH BX
@@ -1169,7 +1169,7 @@ DRAW_GHOST2 PROC
    POP CX
    POP BX
    POP AX 
-   RET
+   RETN
 ;} 
 DRAW_GHOST2 ENDP
 
@@ -1177,7 +1177,7 @@ DRAW_GHOST2 ENDP
 ;--------------------------------------------------------------------------
 ; MOVES THE SECOND GHOST
 ;--------------------------------------------------------------------------
-MOVE_GHOST2 PROC
+MOVE_GHOST2 PROC NEAR
 ;{
    PUSH AX
    PUSH BX
@@ -1198,7 +1198,7 @@ MOVE_GHOST2 PROC
    ;{ DOWNLEFT MOVEMENT
       CMP MOTION_GHOST2, 1
       JNE UPRIGHT_GHOST2
-      DEC STARTPOS_X_GHOST2, 3
+      SUB STARTPOS_X_GHOST2, 3
       ADD STARTPOS_Y_GHOST2, 3
       JMP ENDMOVE_GHOST2
    ;}
@@ -1207,15 +1207,15 @@ MOVE_GHOST2 PROC
       CMP MOTION_GHOST2, 2
       JNE UPLEFT_GHOST2
       ADD STARTPOS_X_GHOST2, 3
-      DEC STARTPOS_Y_GHOST2, 3
+      SUB STARTPOS_Y_GHOST2, 3
       JMP ENDMOVE_GHOST2
    ;}
    UPLEFT_GHOST2:
    ;{ UPLEFT MOVEMENT
       CMP MOTION_GHOST2, 3
       JNE ENDMOVE_GHOST2
-      DEC STARTPOS_X_GHOST2, 3
-      DEC STARTPOS_Y_GHOST2, 3
+      SUB STARTPOS_X_GHOST2, 3
+      SUB STARTPOS_Y_GHOST2, 3
       JMP ENDMOVE_GHOST2
    ;}
    
@@ -1224,7 +1224,7 @@ MOVE_GHOST2 PROC
    POP CX
    POP BX
    POP AX 
-   RET
+   RETN
 ;} 
 MOVE_GHOST2 ENDP
 
@@ -1233,7 +1233,7 @@ MOVE_GHOST2 ENDP
 ; DRAWS THE THIRD GHOST
 ;-------------------------------------------------------------------------
 
-DRAW_GHOST3 PROC
+DRAW_GHOST3 PROC NEAR
 ;{
    PUSH AX
    PUSH BX
@@ -1275,7 +1275,7 @@ DRAW_GHOST3 PROC
    POP CX
    POP BX
    POP AX 
-   RET
+   RETN
 ;} 
 DRAW_GHOST3 ENDP
 
@@ -1283,7 +1283,7 @@ DRAW_GHOST3 ENDP
 ;--------------------------------------------------------------------------
 ; MOVES THE THIRD GHOST
 ;-------------------------------------------------------------------------
-MOVE_GHOST3 PROC
+MOVE_GHOST3 PROC NEAR
 ;{
    PUSH AX
    PUSH BX
@@ -1304,7 +1304,7 @@ MOVE_GHOST3 PROC
    ;{ DOWNLEFT MOVEMENT
       CMP MOTION_GHOST3, 1
       JNE UPRIGHT_GHOST3
-      DEC STARTPOS_X_GHOST3, 3
+      SUB STARTPOS_X_GHOST3, 3
       ADD STARTPOS_Y_GHOST3, 3
       JMP ENDMOVE_GHOST3
    ;}
@@ -1313,15 +1313,15 @@ MOVE_GHOST3 PROC
       CMP MOTION_GHOST3, 2
       JNE UPLEFT_GHOST3
       ADD STARTPOS_X_GHOST3, 3
-      DEC STARTPOS_Y_GHOST3, 3
+      SUB STARTPOS_Y_GHOST3, 3
       JMP ENDMOVE_GHOST3
    ;}
    UPLEFT_GHOST3:
    ;{ UPLEFT MOVEMENT
       CMP MOTION_GHOST3, 3
       JNE ENDMOVE_GHOST3
-      DEC STARTPOS_X_GHOST3, 3
-      DEC STARTPOS_Y_GHOST3, 3
+      SUB STARTPOS_X_GHOST3, 3
+      SUB STARTPOS_Y_GHOST3, 3
       JMP ENDMOVE_GHOST3
    ;}
    
@@ -1330,7 +1330,7 @@ MOVE_GHOST3 PROC
    POP CX
    POP BX
    POP AX 
-   RET
+   RETN
 ;} 
 MOVE_GHOST3 ENDP
 
@@ -1338,7 +1338,7 @@ MOVE_GHOST3 ENDP
 ;---------------------------------------------------------------------------------------------------
 ; DRAWS THE PORTALS FROM WHICH GHOSTS COME FROM
 ;---------------------------------------------------------------------------------------------------
-DRAW_PORTALS PROC 
+DRAW_PORTALS PROC NEAR 
 ;{
 
    ;{DRAW GHOST PORTAL
@@ -1363,7 +1363,7 @@ DRAW_PORTALS PROC
    DRAW_OBJECT PORTAL_SIZE, SI, STARTPOS_X_PORTAL3, STARTPOS_Y_PORTAL3 
    ;}
    NOGHOST3:
-   RET
+   RETN
 ;}
 DRAW_PORTALS ENDP
 
@@ -1380,7 +1380,7 @@ DRAW_PORTALS ENDP
 ;---------------------------------------------------------------------------------------------------
 ; FIRES A BULLET FROM TANK 1 CANON SET ITS MOTION TYPE ONLY CALLED TO INTIALIZE A BULLET ONCE FIRED
 ;---------------------------------------------------------------------------------------------------
-FIRE_BULLET_1 PROC
+FIRE_BULLET_1 PROC NEAR
 ;{
    PUSH AX
    PUSH BX
@@ -1389,7 +1389,7 @@ FIRE_BULLET_1 PROC
    
    ;IF(BULLET_1_STATUS == 1) -> ANOTHER BULLET EXISTS WE CAN'T FIRE 
    CMP BULLET_1_STATUS,1
-      JE RET_FIRE_BUL_1   
+      JE RETN_FIRE_BUL_1   
    ;ELSE DRAW A BULLET AT START POSITION
       MOV BULLET_1_STATUS, 1 ;TO FIRE A BULLET
       ;INITAILIZE WITH BULLET START POSTION
@@ -1401,19 +1401,19 @@ FIRE_BULLET_1 PROC
       MOV BULLET_1_MOTION_TYPE, BX
       CALL DRAW_BULLET_1    
    
-   RET_FIRE_BUL_1:
+   RETN_FIRE_BUL_1:
    POP DX
    POP CX
    POP BX
    POP AX 
-   RET
+   RETN
 ;}
 FIRE_BULLET_1 ENDP
 
 ;------------------------------------------------------------------------------
 ; DRAWS A BULLET 1 AT BULLET_POSTION_1 X , Y IF THE BULLET EXISTS (STATUS == 1)
 ;------------------------------------------------------------------------------
-DRAW_BULLET_1 PROC
+DRAW_BULLET_1 PROC NEAR
 ;{   
    PUSH AX
    PUSH BX
@@ -1421,29 +1421,29 @@ DRAW_BULLET_1 PROC
    PUSH DX
    ;IF(BULLET STATUS = 0) -> WE WILL NOT DRAW IT
    CMP BULLET_1_STATUS, 1
-   JNE RET_DRW_BUL_11   
+   JNE RETN_DRW_BUL_11   
    ;CHECK THE BULLET IS WITHIN BOUNDARIES
-   WITHIN_BOUNDARIES BULLET_1_POSITION_X, BULLET_1_POSITION_Y, BULLETSIZE , BULLET_1_STATUS ;RETURNS IN BULLETSTATUS 0 IF NOT WITHIN
+   WITHIN_BOUNDARIES BULLET_1_POSITION_X, BULLET_1_POSITION_Y, BULLETSIZE , BULLET_1_STATUS ;RETNURNS IN BULLETSTATUS 0 IF NOT WITHIN
    ;IF(IT IS NOT WITHIN BOUNDARIES DONNOT DRAW)
       CMP BULLET_1_STATUS, 1
-      RET_DRW_BUL_11:      ;USELESS LABEL FOR INTERMEDIATE JUMP
-      JNE RET_DRW_BUL_1
+      RETN_DRW_BUL_11:      ;USELESS LABEL FOR INTERMEDIATE JUMP
+      JNE RETN_DRW_BUL_1
       MOV BX , BULLETSIZE
       MOV SI, OFFSET Bullet_1_Model
       DRAW_OBJECT BULLETSIZE , SI , BULLET_1_POSITION_X, BULLET_1_POSITION_Y
-   RET_DRW_BUL_1:
+   RETN_DRW_BUL_1:
    POP DX
    POP CX
    POP BX
    POP AX 
-   RET
+   RETN
 ;}
 DRAW_BULLET_1 ENDP
 ;------------------------------------------------------------------------------
 ; MOVES BULLET 1 IF IT EXISTS ACCORDING TO ITS TYPE OF MOTION
-; NOTE BULLET SPEED IS CURRENTLY HARDCODED , INCREASING IT CAN BE DONE FROM THIS PROCEDURE 
+; NOTE BULLET SPEED IS CURRENTLY HARDCODED , INCREASING IT CAN BE DONE FROM THIS PROC NEAREDURE 
 ;------------------------------------------------------------------------------
-MOVE_BULLET_1 PROC 
+MOVE_BULLET_1 PROC NEAR 
 ;{
    PUSH AX
    PUSH BX
@@ -1451,7 +1451,7 @@ MOVE_BULLET_1 PROC
    PUSH DX
    ;IF(BULLETSTATUS == 0) -> BULLET DOESNT EXIST
    CMP BULLET_1_STATUS, 0
-   JE RET_MOV_BUL_1
+   JE RETN_MOV_BUL_1
    ;ELSE IF THE BULLET EXISTS IT WILL BE MOVED ACCORDING TO ITS MOTIONTYPE(0:UPWARDS, 1:UPRIGHT, 2:RIGHT, 3:DOWNRIGHT, 4:DOWN)
    ;CHECK THAT IT WILL NOT GET OUT OF BOUNDARIES
    MOV AX ,BULLET_1_SPEED                
@@ -1459,7 +1459,7 @@ MOVE_BULLET_1 PROC
       CMP BULLET_1_MOTION_TYPE,0
       JNE UPRIGHTB
       SUB BULLET_1_POSITION_Y, AX         ;MOVE WITH SPEED 
-      JMP RET_MOV_BUL_1
+      JMP RETN_MOV_BUL_1
    ;}
    UPRIGHTB:
    ;{
@@ -1475,14 +1475,14 @@ MOVE_BULLET_1 PROC
       ADD BULLET_1_POSITION_X,AX
       SUB BULLET_1_POSITION_Y,AX
       MOV AX,BULLET_1_SPEED               ;RESET AX=SPEED OF BULLET 
-      JMP RET_MOV_BUL_1
+      JMP RETN_MOV_BUL_1
    ;}
    RIGHTB:
    ;{
       CMP BULLET_1_MOTION_TYPE,2
       JNE DOWNRIGHTB
       ADD BULLET_1_POSITION_X, AX
-      JMP RET_MOV_BUL_1 
+      JMP RETN_MOV_BUL_1 
    ;}
    DOWNRIGHTB:
    ;{
@@ -1498,26 +1498,26 @@ MOVE_BULLET_1 PROC
       ADD BULLET_1_POSITION_Y, AX
       ADD BULLET_1_POSITION_X, AX
       MOV AX,BULLET_1_SPEED
-      JMP RET_MOV_BUL_1
+      JMP RETN_MOV_BUL_1
    ;}
    DOWNB:
    ;{
       ADD BULLET_1_POSITION_Y, AX
    ;}
 
-   RET_MOV_BUL_1:
+   RETN_MOV_BUL_1:
    POP DX
    POP CX
    POP BX
    POP AX 
-   RET
+   RETN
 ;}  
 MOVE_BULLET_1 ENDP
 
 ;---------------------------------------------------------------------------------------------------
 ; FIRES A BULLET FROM TANK 2 CANON SET ITS MOTION TYPE ONLY CALLED TO INTIALIZE A BULLET ONCE FIRED
 ;---------------------------------------------------------------------------------------------------
-FIRE_BULLET2 PROC
+FIRE_BULLET2 PROC NEAR
 ;{
    PUSH AX
    PUSH BX
@@ -1526,7 +1526,7 @@ FIRE_BULLET2 PROC
    
    ;IF(BULLET_2_STATUS == 1) -> ANOTHER BULLET EXISTS WE CAN'T FIRE 
    CMP BULLET_2_STATUS,1
-      JE RET_FIRE_BUL_2   
+      JE RETN_FIRE_BUL_2   
    ;ELSE DRAW A BULLET AT START POSITION
       MOV BULLET_2_STATUS, 1 ;TO FIRE A BULLET
       ;INITAILIZE WITH BULLET START POSTION
@@ -1538,18 +1538,18 @@ FIRE_BULLET2 PROC
       MOV BULLET_2_MOTION_TYPE, BX
       CALL DRAW_BULLET_2    
    
-   RET_FIRE_BUL_2:
+   RETN_FIRE_BUL_2:
    POP DX
    POP CX
    POP BX
    POP AX 
-   RET
+   RETN
 ;}
 FIRE_BULLET2 ENDP
 ;------------------------------------------------------------------------------
 ; DRAWS BULLET 2 AT BULLET_POSTION_1 X , Y IF THE BULLET EXISTS (STATUS == 1)
 ;------------------------------------------------------------------------------
-DRAW_BULLET_2 PROC
+DRAW_BULLET_2 PROC NEAR
 ;{   
    PUSH AX
    PUSH BX
@@ -1557,29 +1557,29 @@ DRAW_BULLET_2 PROC
    PUSH DX
    ;IF(BULLET STATUS = 0) -> WE WILL NOT DRAW IT
    CMP BULLET_2_STATUS, 1
-   JNE RET_DRW_BUL_22   
+   JNE RETN_DRW_BUL_22   
    ;CHECK THE BULLET IS WITHIN BOUNDARIES
-   WITHIN_BOUNDARIES BULLET_2_POSITION_X, BULLET_2_POSITION_Y, BULLETSIZE , BULLET_2_STATUS ;RETURNS IN BULLETSTATUS 0 IF NOT WITHIN
+   WITHIN_BOUNDARIES BULLET_2_POSITION_X, BULLET_2_POSITION_Y, BULLETSIZE , BULLET_2_STATUS ;RETNURNS IN BULLETSTATUS 0 IF NOT WITHIN
    ;IF(IT IS NOT WITHIN BOUNDARIES DONNOT DRAW)
       CMP BULLET_2_STATUS, 1
-      RET_DRW_BUL_22:      ;USELESS LABEL FOR INTERMEDIATE JUMP
-      JNE RET_DRW_BUL_2
+      RETN_DRW_BUL_22:      ;USELESS LABEL FOR INTERMEDIATE JUMP
+      JNE RETN_DRW_BUL_2
       MOV SI, OFFSET Bullet_2_Model
       DRAW_OBJECT BULLETSIZE , SI , BULLET_2_POSITION_X, BULLET_2_POSITION_Y
-   RET_DRW_BUL_2:
+   RETN_DRW_BUL_2:
    POP DX
    POP CX
    POP BX
    POP AX 
-   RET
+   RETN
 ;}
 DRAW_BULLET_2 ENDP
 
 ;-----------------------------------------------------------------------------------------
 ; MOVES BULLET 2 IF IT EXISTS ACCORDING TO ITS TYPE OF MOTION
-; NOTE BULLET SPEED IS CURRENTLY HARDCODED , INCREASING IT CAN BE DONE FROM THIS PROCEDURE 
+; NOTE BULLET SPEED IS CURRENTLY HARDCODED , INCREASING IT CAN BE DONE FROM THIS PROC NEAREDURE 
 ;-----------------------------------------------------------------------------------------
-MOVE_BULLET_2 PROC 
+MOVE_BULLET_2 PROC NEAR 
 ;{
    PUSH AX
    PUSH BX
@@ -1587,7 +1587,7 @@ MOVE_BULLET_2 PROC
    PUSH DX
    ;IF(BULLETSTATUS == 0) -> BULLET DOESNT EXIST
    CMP BULLET_2_STATUS, 0
-   JE RET_MOV_BUL_2
+   JE RETN_MOV_BUL_2
    ;ELSE IF THE BULLET EXISTS IT WILL BE MOVED ACCORDING TO ITS MOTIONTYPE(0:UPWARDS, 1:UPLEFT, 2:LEFT, 3:DOWNLEFT, 4:DOWN)
    ;CHECK THAT IT WILL NOT GET OUT OF BOUNDARIES
    MOV AX,BULLET_2_SPEED
@@ -1595,7 +1595,7 @@ MOVE_BULLET_2 PROC
       CMP BULLET_2_MOTION_TYPE,0
       JNE UPLEFTB
       SUB BULLET_2_POSITION_Y, AX
-      JMP RET_MOV_BUL_2
+      JMP RETN_MOV_BUL_2
    ;}
    UPLEFTB:
    ;{
@@ -1611,7 +1611,7 @@ MOVE_BULLET_2 PROC
       SUB BULLET_2_POSITION_X,AX
       SUB BULLET_2_POSITION_Y,AX
       MOV AX,BULLET_2_SPEED
-      JMP RET_MOV_BUL_2
+      JMP RETN_MOV_BUL_2
    ;}
    LEFTB:
    ;{
@@ -1619,7 +1619,7 @@ MOVE_BULLET_2 PROC
       JNE DOWNLEFTB
       SUB BULLET_2_POSITION_X, AX
       
-      JMP RET_MOV_BUL_2 
+      JMP RETN_MOV_BUL_2 
   ;}
    DOWNLEFTB:
    ;{
@@ -1635,26 +1635,26 @@ MOVE_BULLET_2 PROC
       ADD BULLET_2_POSITION_Y, AX
       SUB BULLET_2_POSITION_X, AX
       MOV AX,BULLET_2_SPEED
-      JMP RET_MOV_BUL_2
+      JMP RETN_MOV_BUL_2
    ;}
    DOWNB2:
    ;{
       ADD BULLET_2_POSITION_Y, AX
    ;}
 
-   RET_MOV_BUL_2:
+   RETN_MOV_BUL_2:
    POP DX
    POP CX
    POP BX
    POP AX 
-   RET
+   RETN
 ;}  
 MOVE_BULLET_2 ENDP
  
 ;-----------------------------------------------------------------------------------------
 ;Detects if bullet 1 hits tank 2 
 ;-----------------------------------------------------------------------------------------
-CHECK_HIT_BUL1_TANK2 PROC
+CHECK_HIT_BUL1_TANK2 PROC NEAR
 ;{
    PUSH AX
    PUSH BX
@@ -1666,7 +1666,7 @@ CHECK_HIT_BUL1_TANK2 PROC
       ;{
          CMP BULLET_1_STATUS, 0
          JNE NOHIT1
-         ;MAY BE SPLIT IN ANOTHER PROCEDURE JUSTFOR TESTING FOR NOW
+         ;MAY BE SPLIT IN ANOTHER PROC NEAREDURE JUSTFOR TESTING FOR NOW
          ;SUBTRACT THE DAMAGE FROM TANK2
          MOV AX, TANK_DMG_1         
          CMP TANK_HP_2,AX             ;IF HP<= THE OTHER TANK DAMAGE THIS PLAYER WILL LOSE
@@ -1684,14 +1684,14 @@ CHECK_HIT_BUL1_TANK2 PROC
    POP CX
    POP BX
    POP AX
-   RET
+   RETN
 ;}   
 CHECK_HIT_BUL1_TANK2 ENDP
 
 ;-----------------------------------------------------------------------------------------
 ;Detects if bullet 1 hits Ghost1 
 ;-----------------------------------------------------------------------------------------
-CHECK_HIT_BUL1_GHOST1 PROC
+CHECK_HIT_BUL1_GHOST1 PROC NEAR
 ;{
    PUSH AX
    PUSH BX
@@ -1748,14 +1748,14 @@ CHECK_HIT_BUL1_GHOST1 PROC
    POP CX
    POP BX
    POP AX
-   RET
+   RETN
 ;}   
 CHECK_HIT_BUL1_GHOST1 ENDP
 
 ;-----------------------------------------------------------------------------------------
 ;Detects if bullet 1 hits Ghost2 
 ;-----------------------------------------------------------------------------------------
-CHECK_HIT_BUL1_GHOST2 PROC
+CHECK_HIT_BUL1_GHOST2 PROC NEAR
 ;{
    PUSH AX
    PUSH BX
@@ -1811,14 +1811,14 @@ CHECK_HIT_BUL1_GHOST2 PROC
    POP CX
    POP BX
    POP AX
-   RET
+   RETN
 ;}   
 CHECK_HIT_BUL1_GHOST2 ENDP
 
 ;-----------------------------------------------------------------------------------------
 ;Detects if bullet 1 hits Ghost3 
 ;-----------------------------------------------------------------------------------------
-CHECK_HIT_BUL1_GHOST3 PROC
+CHECK_HIT_BUL1_GHOST3 PROC NEAR
 ;{
    PUSH AX
    PUSH BX
@@ -1872,14 +1872,14 @@ CHECK_HIT_BUL1_GHOST3 PROC
    POP CX
    POP BX
    POP AX
-   RET
+   RETN
 ;}   
 CHECK_HIT_BUL1_GHOST3 ENDP
 
 ;-----------------------------------------------------------------------------------------
 ;Detects if bullet 2 hits tank 1 
 ;-----------------------------------------------------------------------------------------
-CHECK_HIT_BUL2_TANK1 PROC
+CHECK_HIT_BUL2_TANK1 PROC NEAR
 ;{
    PUSH AX
    PUSH BX
@@ -1891,7 +1891,7 @@ CHECK_HIT_BUL2_TANK1 PROC
       ;{
          CMP BULLET_2_STATUS, 0
          JNE NOHIT2
-         ;MAY BE SPLIT IN ANOTHER PROCEDURE JUSTFOR TESTING FOR NOW
+         ;MAY BE SPLIT IN ANOTHER PROC NEAREDURE JUSTFOR TESTING FOR NOW
          ;SUBTRACT THE DAMAGE FROM TANK2
          MOV AX, TANK_DMG_2        ;IF HP<= THE OTHER TANK DAMAGE THIS PLAYER WILL LOSE
          CMP TANK_HP_1,AX
@@ -1907,14 +1907,14 @@ CHECK_HIT_BUL2_TANK1 PROC
    POP CX
    POP BX
    POP AX
-   RET
+   RETN
 ;}   
 CHECK_HIT_BUL2_TANK1 ENDP
 
 ;-----------------------------------------------------------------------------------------
 ;Detects if bullet 2 hits Ghost1 
 ;-----------------------------------------------------------------------------------------
-CHECK_HIT_BUL2_GHOST1 PROC
+CHECK_HIT_BUL2_GHOST1 PROC NEAR
 ;{
    PUSH AX
    PUSH BX
@@ -1970,14 +1970,14 @@ CHECK_HIT_BUL2_GHOST1 PROC
    POP CX
    POP BX
    POP AX
-   RET
+   RETN
 ;}   
 CHECK_HIT_BUL2_GHOST1 ENDP
 
 ;-----------------------------------------------------------------------------------------
 ;Detects if bullet 2 hits Ghost2 
 ;-----------------------------------------------------------------------------------------
-CHECK_HIT_BUL2_GHOST2 PROC
+CHECK_HIT_BUL2_GHOST2 PROC NEAR
 ;{
    PUSH AX
    PUSH BX
@@ -2032,14 +2032,14 @@ CHECK_HIT_BUL2_GHOST2 PROC
    POP CX
    POP BX
    POP AX
-   RET
+   RETN
 ;}   
 CHECK_HIT_BUL2_GHOST2 ENDP
 
 ;-----------------------------------------------------------------------------------------
 ;Detects if bullet 2 hits Ghost3 
 ;-----------------------------------------------------------------------------------------
-CHECK_HIT_BUL2_GHOST3 PROC
+CHECK_HIT_BUL2_GHOST3 PROC NEAR
 ;{
    PUSH AX
    PUSH BX
@@ -2093,13 +2093,13 @@ CHECK_HIT_BUL2_GHOST3 PROC
    POP CX
    POP BX
    POP AX
-   RET
+   RETN
 ;}   
 CHECK_HIT_BUL2_GHOST3 ENDP
 ;-----------------------------------------------------------------------------------------
 ;Detects The collision of The two bullets 
 ;-----------------------------------------------------------------------------------------
-BULLETS_HIT PROC
+BULLETS_HIT PROC NEAR
 ;{
    PUSH AX
    PUSH BX
@@ -2116,7 +2116,7 @@ BULLETS_HIT PROC
    POP CX
    POP BX
    POP AX
-   RET
+   RETN
 ;}
 BULLETS_HIT ENDP
 ;---------------------------------------------------------------------------------------
@@ -2131,7 +2131,7 @@ BULLETS_HIT ENDP
 ;---------------------------------------------------------------------------------------
 ;CHECK IF GHOST1 HITS TANK 1
 ;---------------------------------------------------------------------------------------
-CHECK_HIT_GHOST1_TANK1 PROC
+CHECK_HIT_GHOST1_TANK1 PROC NEAR
    PUSH AX
    PUSH BX
    PUSH CX
@@ -2142,7 +2142,7 @@ CHECK_HIT_GHOST1_TANK1 PROC
          JNE TANK1_SAFE1
       ;MOVE GHOST1 OUT OF BOUNDARIES TO AVOID COLLIDING WITH BULLETS WHILE BEING TRANSPARENT
          SUB STARTPOS_Y_GHOST1, 600   
-      ;REDUCE THE TANK HP, WILL BE SPLIT IN A DIFFERENT PROC
+      ;REDUCE THE TANK HP, WILL BE SPLIT IN A DIFFERENT PROC NEAR
          CMP TANK_HP_1,1                     ;CHECK IF THE TANK LIFE POINTS IS STILL ABOVE 1
          JNZ DECREASE_HP1_G1
          MOV WINNER ,1                       ;IF IT IS THE LAST LIFE THIS PLAYER WILL LOSE
@@ -2155,13 +2155,13 @@ CHECK_HIT_GHOST1_TANK1 PROC
    POP BX
    POP CX
    POP DX
-   RET
+   RETN
 CHECK_HIT_GHOST1_TANK1 ENDP
 
 ;---------------------------------------------------------------------------------------
 ;CHECK IF GHOST2 HITS TANK 1
 ;---------------------------------------------------------------------------------------
-CHECK_HIT_GHOST2_TANK1 PROC
+CHECK_HIT_GHOST2_TANK1 PROC NEAR
    PUSH AX
    PUSH BX
    PUSH CX
@@ -2172,7 +2172,7 @@ CHECK_HIT_GHOST2_TANK1 PROC
          JNE TANK1_SAFE2
       ;MOVE GHOST1 OUT OF BOUNDARIES TO AVOID COLLIDING WITH BULLETS WHILE BEING TRANSPARENT
          SUB STARTPOS_Y_GHOST2, 600   
-      ;REDUCE THE TANK HP, WILL BE SPLIT IN A DIFFERENT PROC
+      ;REDUCE THE TANK HP, WILL BE SPLIT IN A DIFFERENT PROC NEAR
          CMP TANK_HP_1,1
          JNZ DECREASE_HP1_G2
          MOV WINNER,2
@@ -2186,13 +2186,13 @@ CHECK_HIT_GHOST2_TANK1 PROC
    POP BX
    POP CX
    POP DX
-   RET
+   RETN
 CHECK_HIT_GHOST2_TANK1 ENDP
 
 ;---------------------------------------------------------------------------------------
 ;CHECK IF GHOST3 HITS TANK 1
 ;---------------------------------------------------------------------------------------
-CHECK_HIT_GHOST3_TANK1 PROC
+CHECK_HIT_GHOST3_TANK1 PROC NEAR
    PUSH AX
    PUSH BX
    PUSH CX
@@ -2203,7 +2203,7 @@ CHECK_HIT_GHOST3_TANK1 PROC
          JNE TANK1_SAFE3
       ;MOVE GHOST1 OUT OF BOUNDARIES TO AVOID COLLIDING WITH BULLETS WHILE BEING TRANSPARENT
          SUB STARTPOS_Y_GHOST3, 600   
-      ;REDUCE THE TANK HP, WILL BE SPLIT IN A DIFFERENT PROC
+      ;REDUCE THE TANK HP, WILL BE SPLIT IN A DIFFERENT PROC NEAR
          CMP TANK_HP_1,1
          JNZ DECREASE_HP1_G3
          MOV WINNER,2
@@ -2218,13 +2218,13 @@ CHECK_HIT_GHOST3_TANK1 PROC
    POP BX
    POP CX
    POP DX
-   RET
+   RETN
 CHECK_HIT_GHOST3_TANK1 ENDP
 
 ;---------------------------------------------------------------------------------------
 ;CHECK IF GHOST1 HITS TANK 2
 ;---------------------------------------------------------------------------------------
-CHECK_HIT_GHOST1_TANK2 PROC
+CHECK_HIT_GHOST1_TANK2 PROC NEAR
    PUSH AX
    PUSH BX
    PUSH CX
@@ -2235,7 +2235,7 @@ CHECK_HIT_GHOST1_TANK2 PROC
          JNE TANK2_SAFE1
       ;MOVE GHOST1 OUT OF BOUNDARIES TO AVOID COLLIDING WITH BULLETS WHILE BEING TRANSPARENT
          SUB STARTPOS_Y_GHOST1, 600   
-      ;REDUCE THE TANK HP, WILL BE SPLIT IN A DIFFERENT PROC
+      ;REDUCE THE TANK HP, WILL BE SPLIT IN A DIFFERENT PROC NEAR
          CMP TANK_HP_2,1
          JNZ DECREASE_HP2_G1
          MOV WINNER,1
@@ -2250,13 +2250,13 @@ CHECK_HIT_GHOST1_TANK2 PROC
    POP BX
    POP CX
    POP DX
-   RET
+   RETN
 CHECK_HIT_GHOST1_TANK2 ENDP
 
 ;---------------------------------------------------------------------------------------
 ;CHECK IF GHOST2 HITS TANK 2
 ;---------------------------------------------------------------------------------------
-CHECK_HIT_GHOST2_TANK2 PROC
+CHECK_HIT_GHOST2_TANK2 PROC NEAR
    PUSH AX
    PUSH BX
    PUSH CX
@@ -2267,7 +2267,7 @@ CHECK_HIT_GHOST2_TANK2 PROC
          JNE TANK2_SAFE2
       ;MOVE GHOST1 OUT OF BOUNDARIES TO AVOID COLLIDING WITH BULLETS WHILE BEING TRANSPARENT
          SUB STARTPOS_Y_GHOST2, 600   
-      ;REDUCE THE TANK HP, WILL BE SPLIT IN A DIFFERENT PROC
+      ;REDUCE THE TANK HP, WILL BE SPLIT IN A DIFFERENT PROC NEAR
            CMP TANK_HP_2,1
            JNZ DECREASE_HP2_G2
            MOV WINNER,1
@@ -2282,13 +2282,13 @@ CHECK_HIT_GHOST2_TANK2 PROC
    POP BX
    POP CX
    POP DX
-   RET
+   RETN
 CHECK_HIT_GHOST2_TANK2 ENDP
 
 ;---------------------------------------------------------------------------------------
 ;CHECK IF GHOST3 HITS TANK 2
 ;---------------------------------------------------------------------------------------
-CHECK_HIT_GHOST3_TANK2 PROC
+CHECK_HIT_GHOST3_TANK2 PROC NEAR
    PUSH AX
    PUSH BX
    PUSH CX
@@ -2299,7 +2299,7 @@ CHECK_HIT_GHOST3_TANK2 PROC
          JNE TANK2_SAFE3
       ;MOVE GHOST1 OUT OF BOUNDARIES TO AVOID COLLIDING WITH BULLETS WHILE BEING TRANSPARENT
          SUB STARTPOS_Y_GHOST3, 600   
-      ;REDUCE THE TANK HP, WILL BE SPLIT IN A DIFFERENT PROC
+      ;REDUCE THE TANK HP, WILL BE SPLIT IN A DIFFERENT PROC NEAR
       
          CMP TANK_HP_2,1
          JNZ DECREASE_HP2_G3
@@ -2315,7 +2315,7 @@ CHECK_HIT_GHOST3_TANK2 PROC
    POP BX
    POP CX
    POP DX
-   RET
+   RETN
 CHECK_HIT_GHOST3_TANK2 ENDP
 ;-----------------------------------------------------
 ;  _    _  ______            _      _______  _    _    
@@ -2325,7 +2325,7 @@ CHECK_HIT_GHOST3_TANK2 ENDP
 ; | |  | || |____  / ____ \ | |____   | |   | |  | |  
 ; |_|  |_||______|/_/    \_\|______|  |_|   |_|  |_|  
 ;----------------------------------------------------
-DRAW_HEALTH_BAR_1 PROC
+DRAW_HEALTH_BAR_1 PROC NEAR
 ;{   
    PUSH AX
    PUSH BX
@@ -2345,7 +2345,7 @@ RED_PLAYER1:                                      ;FOR PLAYER1 DRAW THE RED HEAR
 
    MOV CX,10
    SUB CX,TANK_HP_1
-   JZ RETURN_HEALTH1                             ;IF HP=10 NO WHITE HEARTS SO RETURN 
+   JZ RETNURN_HEALTH1                             ;IF HP=10 NO WHITE HEARTS SO RETNURN 
 	 
 WHITE_PLAYER1:                                   ;DRAW WHITE HEARTS IF IT EXISTS
    ;(
@@ -2355,18 +2355,18 @@ WHITE_PLAYER1:                                   ;DRAW WHITE HEARTS IF IT EXISTS
    LOOP WHITE_PLAYER1
    ;)
  
- RETURN_HEALTH1:
+ RETNURN_HEALTH1:
    POP DX
    POP CX
    POP BX
    POP AX 
-   RET
+   RETN
 ;}
 DRAW_HEALTH_BAR_1 ENDP
 ;-----------------------------------------------
 ;DRAW THE HEALTH BAR FOR PLAYER 2
 ;-----------------------------------------------
-DRAW_HEALTH_BAR_2 PROC
+DRAW_HEALTH_BAR_2 PROC NEAR
 ;{   
    PUSH AX
    PUSH BX
@@ -2397,21 +2397,21 @@ DRAW_RED:
       DEC CX
       JNZ RED_PLAYER2  
       ;)
-   JZ RETURN_DATA2
+   JZ RETNURN_DATA2
 ;)
- RETURN_DATA2:
+ RETNURN_DATA2:
    POP DX
    POP CX
    POP BX
    POP AX 
-   RET
+   RETN
 ;}
 DRAW_HEALTH_BAR_2 ENDP
 
 ;--------------------------------------------
 ; DRAWS THE POWER-UP BAR OF PLAYER 1 
 ;--------------------------------------------
-DRW_PRUP_BAR_1 PROC
+DRW_PRUP_BAR_1 PROC NEAR
 ;{
    PUSH AX
    PUSH BX
@@ -2447,14 +2447,14 @@ DRW_PRUP_BAR_1 PROC
    POP CX
    POP BX
    POP AX
-   RET
+   RETN
 ;}
 DRW_PRUP_BAR_1 ENDP
 
 ;--------------------------------------------
 ; DRAWS THE POWER-UP BAR OF PLAYER 2 
 ;--------------------------------------------
-DRW_PRUP_BAR_2 PROC
+DRW_PRUP_BAR_2 PROC NEAR
 ;{
    PUSH AX
    PUSH BX
@@ -2490,14 +2490,14 @@ DRW_PRUP_BAR_2 PROC
    POP CX
    POP BX
    POP AX
-   RET
+   RETN
 ;}
 DRW_PRUP_BAR_2 ENDP
 
 ;---------------------------
 ; LOSSER 
 ;---------------------------
-PLAYER_LOST PROC 
+PLAYER_LOST PROC NEAR 
 
          MOV    AX, 4F02H     ; THIS TO HANDLE FLICKERING WE REOPEN THE VIDEO MODE EVERYTIME 
          MOV    BX, 100H
@@ -2532,7 +2532,7 @@ PLAYER_LOST ENDP
 ;   _| |_ | |\  |   | |   | |____ | | \ \  | |     / ____ \  | |____ | |____ 
 ;  |_____||_| \_|   |_|   |______||_|  \_\ |_|    /_/    \_\  \_____||______|
 ;------------------------------------------------------------------------------------
-  MAIN_MENU PROC
+  MAIN_MENU PROC NEAR
    ;{ OPEN VIDEO MODE
          MOV    AX, 4F02H 
          MOV    BX, 105H      
@@ -2589,7 +2589,7 @@ PLAYER_LOST ENDP
    MOV    AH, 2CH  ;GET SYSTEM TIME
    INT    21H
    MOV    PREV_SYS_SECOND, DH  ;STORE THE CURRENT SECOND OF THE SYSTEM
-   RET
+   RETN
    MAIN_MENU ENDP
    
 END MAIN 
