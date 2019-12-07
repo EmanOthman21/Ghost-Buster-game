@@ -373,6 +373,7 @@ MAIN                PROC
                   DRAW_CASE :
                   ;(
                     DRAW 60,60,190,190,03
+                    CALL SOUND
                     MOV    AH,4CH
                     INT    21H
                   ;)  
@@ -539,7 +540,6 @@ USERINPUT PROC NEAR
          MOV    AX, 4F02H     ; THIS TO HANDLE FLICKERING WE REOPEN THE VIDEO MODE EVERYTIME 
          MOV    BX, 100H
          INT    10H
-         CALL SOUND 
          MOV    AH, 4CH
          INT    21H
       ;}
@@ -2523,9 +2523,9 @@ PLAYER2_WON:
 ;)
  
 PRESS_TO_MENU:
+      CALL SOUND 
       MOV AH,0                        ;GET KEY PRESSED FOR ENDING THE GAME
 		INT 16H
-     
       MOV    AH,4CH
       INT    21H
 PLAYER_LOST ENDP
