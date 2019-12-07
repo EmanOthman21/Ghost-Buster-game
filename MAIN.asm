@@ -166,7 +166,7 @@ LOGO_Y DW 125        ;POSITION OF LOGO IN INTERFACE
 
 MENUITEM1 DB 'PRESS F1 TO START CHATTING$'
 MENUITEM2 DB 'PRESS F2 TO START THE GAME$'
-MENUITEM3 DB 'PRESS ESC TO EXIT THE PROGRAM',10,13,'$'
+MENUITEM3 DB 'PRESS ESC TO EXIT THE PROGRAM$'
 
 
 ;---------------------------------------------------------------------------------------------------------
