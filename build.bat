@@ -1,17 +1,30 @@
 @echo off
-If not exist %1.asm echo File Does Not Exist
-If not exist %1.asm goto end
+If not exist main.asm echo File Does Not Exist
+If not exist main.asm goto end
 
-If exist %1.obj erase %1.obj
-If exist %1.exe erase %1.exe
-If exist %1.exe erase %1.lst
+If exist main.obj erase main.obj
+If exist main.exe erase main.exe
+If exist main.lst erase main.lst
 
-masm %1,%1,%1 ;
-If not exist %1.obj goto end
+If exist MDAT.obj erase MDAT.obj
+If exist MDAT.exe erase MDAT.exe
+If exist MDAT.exe erase MDAT.exe
 
-link %1,%1,nul;
-If not exist %1.exe goto end
 
-%1.exe
+
+masm MDAT,MDAT,MDAT ;
+If not exist MDAT.obj goto end
+
+
+
+masm main,main,main ;
+If not exist main.obj goto end
+
+
+link  main.obj + mdat.obj, game, nul, nul, nul;
+If not exist game.exe goto end
+
+game.exe
+
 
 :end
