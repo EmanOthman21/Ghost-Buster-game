@@ -1,100 +1,123 @@
 PUBLIC SOUND
 
-.Model LARGE
+.MODEL LARGE
 DATA1 SEGMENT PARA 'DATA'
 
 
-Filename DB 'kingsv.wav', 0
+FILENAME DB 'KINGSV.WAV', 0
 
-Filehandle DW ?
+FILEHANDLE DW ?
 
-sounddata DB 51529 dup(0)
+SOUNDDATA DB 51529 DUP(0)
 
 DATA1 ENDS
 
-.Code
+.CODE
 SOUND PROC FAR
     
     ASSUME DS:DATA1
     MOV AX , DATA1
     MOV DS , AX
 	
-    CALL OpenFile
-    CALL ReadData
+    CALL OPENFILE
+    CALL READDATA
 	
-    LEA BX , sounddata ; BL contains index at the current drawn pixel
-	
-	
-; Drawing loop
-aLoop:
-    mov dx, 22ch
-	mov al, 10h
-	out dx, al
+    LEA BX , SOUNDDATA ; BL CONTAINS INDEX AT THE CURRENT DRAWN PIXEL
 	
 	
+; DRAWING LOOP
+ALOOP:
+    MOV DX, 22CH
+	MOV AL, 10H
+	OUT DX, AL
 	MOV AL,[BX]
-	out dx, al
-	mov cx, 9433
-	delay:
-	nop
-	loop delay 
-	inc BX
+	OUT DX, AL
+	MOV CX, 9433
+	DELAY:
+	NOP
+	LOOP DELAY 
+    PUSH AX
+    ;{ TAKE THE USER INPUT FROM THE KEYBOARD BUFFER
+         MOV    AH, 1
+         INT    16H      
+         CALL   CLRBUFF  
+    ;} 
+    ;{
+         CMP    AL,1BH
+         JE    EXITPROG
+    ;}
+    POP AX
+    INC BX
     CMP BX , 51529
-JNE aloop
-    call CloseFile
+JNE ALOOP
+EXITPROG:
+    CALL CLOSEFILE
     
 RETF    
 SOUND ENDP
    
+;--------------------------------------
+CLRBUFF		PROC NEAR
+	PUSH		AX
+	PUSH		ES
+	MOV		AX, 0000H
+	MOV		ES, AX
+	MOV		ES:[041AH], 041EH
+	MOV		ES:[041CH], 041EH				; CLEARS KEYBOARD BUFFER
+	POP		ES
+	POP		AX
+	RETN
+CLRBUFF		ENDP 
+
 
 ;------------------------------------------
 
-OpenFile PROC NEAR
+OPENFILE PROC NEAR
 
-    ; Open file
+    ; OPEN FILE
 
-    MOV AH, 3Dh
-    MOV AL, 0 ; read only
-    LEA DX, Filename
-    INT 21h
+    MOV AH, 3DH
+    MOV AL, 0 ; READ ONLY
+    LEA DX, FILENAME
+    INT 21H
     
-    ; you should check carry flag to make sure it worked correctly
-    ; carry = 0 -> successful , file handle -> AX
-    ; carry = 1 -> failed , AX -> error code
+    ; YOU SHOULD CHECK CARRY FLAG TO MAKE SURE IT WORKED CORRECTLY
+    ; CARRY = 0 -> SUCCESSFUL , FILE HANDLE -> AX
+    ; CARRY = 1 -> FAILED , AX -> ERROR CODE
      
-    MOV [Filehandle], AX
+    MOV [FILEHANDLE], AX
     
     RETN
 
-OpenFile ENDP
+OPENFILE ENDP
 
 
 
 ;-----------------------------------------------
 
 
-ReadData PROC NEAR
+READDATA PROC NEAR
 
-    MOV AH,3Fh
-    MOV BX, [Filehandle]
-    MOV CX, 51529 ; number of bytes to read
-    LEA DX, sounddata
-    INT 21h
+    MOV AH,3FH
+    MOV BX, [FILEHANDLE]
+    MOV CX, 51529 ; NUMBER OF BYTES TO READ
+    LEA DX, SOUNDDATA
+    INT 21H
     RETN
-ReadData ENDP 
+READDATA ENDP 
 
 ;------------------------------------------------
 
-CloseFile PROC NEAR
-	MOV AH, 3Eh
-	MOV BX, [Filehandle]
+CLOSEFILE PROC NEAR
+	MOV AH, 3EH
+	MOV BX, [FILEHANDLE]
 
-	INT 21h
+	INT 21H
 	RETN
-CloseFile ENDP
+CLOSEFILE ENDP
 
     
     
     
     
-    end SOUND
+    END SOUND
