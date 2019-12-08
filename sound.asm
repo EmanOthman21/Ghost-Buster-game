@@ -5,9 +5,7 @@ DATA1 SEGMENT PARA 'DATA'
 
 
 FILENAME DB 'KINGSV.WAV', 0
-
 FILEHANDLE DW ?
-
 SOUNDDATA DB 51529 DUP(0)
 
 DATA1 ENDS
@@ -39,21 +37,25 @@ ALOOP:
     PUSH AX
     ;{ TAKE THE USER INPUT FROM THE KEYBOARD BUFFER
          MOV    AH, 1
-         INT    16H      
-         CALL   CLRBUFF  
+         INT    16H
+         JZ     CON      
     ;} 
     ;{
+         CALL   CLRBUFF
          CMP    AL,1BH
          JE    EXITPROG
     ;}
+    CON:
     POP AX
     INC BX
     CMP BX , 51529
 JNE ALOOP
+PUSH   AX
 EXITPROG:
+    POP  AX
     CALL CLOSEFILE
     
-RETF    
+RETF   
 SOUND ENDP
    
 ;--------------------------------------
