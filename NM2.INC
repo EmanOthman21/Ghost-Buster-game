@@ -1,5 +1,5 @@
-NAMES MACRO
-LOCAL OUTERLOOP1, INNERLOOP1, UPPER1, LOWER1
+NM2 MACRO
+LOCAL OUTERLOOP2, INNERLOOP2, UPPER2, LOWER2, LEFT2, RIGHT2
  ;{ OPEN VEDIO MODE
                         MOV     AX, 4F02H
                         MOV     BX, 105H
@@ -13,17 +13,17 @@ LOCAL OUTERLOOP1, INNERLOOP1, UPPER1, LOWER1
                     MOV     CX, 0
                     MOV     AL, 0
                     MOV     AH, 0CH
-                           OUTERLOOP1: 
-                                          INNERLOOP1: 
+                           OUTERLOOP2: 
+                                          INNERLOOP2: 
                                                             INT     10H
                                                             INC     CX
                                                             CMP     CX, 1024
-                                                            JNZ     INNERLOOP1
+                                                            JNZ     INNERLOOP2
                                           ;}
                                     MOV     CX,0
                                     INC     DX         ; NEXT Y
                                     CMP     DX, 780
-                                    JNZ     OUTERLOOP1
+                                    JNZ     OUTERLOOP2
                 ;}
 
 
@@ -35,51 +35,51 @@ LOCAL OUTERLOOP1, INNERLOOP1, UPPER1, LOWER1
                     INT     10H
                 ;}
                 
-                ;{Draw a red square 
+                ;{Draw a blue square 
                 
                     MOV DX, 219
                     MOV CX, 20
-                    MOV AL, 4
+                    MOV AL, 1
                     MOV AH, 0CH 
-                    UPPER1:
+                    UPPER2:
                         INT 10H 
                         INC CX    
                         CMP CX, 1004
-                    JNZ UPPER1
+                    JNZ UPPER2
 
                     MOV DX, 519
                     MOV CX, 20
-                    MOV AL, 4
+                    MOV AL, 1
                     MOV AH, 0CH 
-                    LOWER1:
+                    LOWER2:
                         INT 10H 
                         INC CX    
                         CMP CX, 1004
-                    JNZ LOWER1
+                    JNZ LOWER2
                 
                     MOV DX, 219
                     MOV CX, 20
-                    MOV AL, 4
+                    MOV AL, 1
                     MOV AH, 0CH 
-                    RIGHT1:
+                    RIGHT2:
                         INT 10H 
                         INC DX    
                         CMP DX, 519
-                    JNZ RIGHT1
+                    JNZ RIGHT2
 
                     MOV DX, 219
                     MOV CX, 1004
-                    MOV AL, 4
+                    MOV AL, 1
                     MOV AH, 0CH 
-                    LEFT1:
+                    LEFT2:
                         INT 10H 
                         INC DX    
                         CMP DX, 519
-                    JNZ LEFT1
+                    JNZ LEFT2
                 ;}
 
                 ;{DRAW TANK
-                    MOV SI , OFFSET BITMAP_UP_PLAYER1
+                    MOV SI , OFFSET BITMAP_UP_PLAYER2
                     DRAW_OBJECT TANKSIZE, SI, 232, 350                
 
                 ;}
@@ -91,13 +91,13 @@ LOCAL OUTERLOOP1, INNERLOOP1, UPPER1, LOWER1
                 ;}
                 ;{    
                     MOV     AH,09
-                    LEA     DX,PLAYER1REQUESRNAME
+                    LEA     DX,PLAYER2REQUESRNAME
                     INT     21H
                 ;}
-                ;{ GET PLAYER1 NAME
+                ;{ GET PLAYER2 NAME
                     MOV    AH, 0AH
-                    LEA    DX, PLAYER1NAME    
+                    LEA    DX, PLAYER2NAME    
                     INT    21H
                 ;}
-                
-ENDM NAMES
+
+ENDM NM2

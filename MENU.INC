@@ -11,7 +11,7 @@ LOCAL OUTERLOOP, INNERLOOP, PRINT1, PRINT2, PRINT3
                     MOV     BH, 0      ; DISPLAYPAGE DOESN'T CHANGE
                     MOV     DX, 0     ; Y TO START
                     MOV     CX, 0
-                    MOV     AL, 7
+                    MOV     AL, 0     ;BACKGROUND COLOR
                     MOV     AH, 0CH
                            OUTERLOOP: 
                                           INNERLOOP: 
