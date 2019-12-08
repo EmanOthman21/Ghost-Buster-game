@@ -84,20 +84,59 @@ LOCAL OUTERLOOP2, INNERLOOP2, UPPER2, LOWER2, LEFT2, RIGHT2
 
                 ;}
 
-                ;{ CURSUR = (34H,1AH)
+               PRINT_MESSAGE:
+                ;{  
+                    
+                    MOV CX,15
+                    MOV SI,OFFSET PLAYER2NAME        ;THIS TO CLEAR THE NAME BEFORE SET IT AGAIN 
+                    RESET:
+                    MOV BL,20H                       
+                    MOV [SI],BL
+                    INC SI
+                    LOOP RESET
+
+                    ;{ CURSUR = (34H,1AH)            SET THE CURSOR TO PRINT "ENTER YOUR NAME"
                     MOV     AH, 2
                     MOV     DX, 1727H
                     INT     10H
-                ;}
-                ;{    
-                    MOV     AH,09
+                    ;}
+
+                    MOV     AH,09                    ;PRINT "PLEASE ENTER YOUR NAME"  
                     LEA     DX,PLAYER2REQUESRNAME
                     INT     21H
+                   
+                    MOV     AH,09                    ;PRINT SPACES TO CLEAR THIS AREA (TO HANDLE THE REPEATION)
+                    LEA     DX,SPACE
+                    INT     21H
+
+                    MOV     AH, 2                    ;SET THE CURSOR TO PRINT AFTER THE MESSAGE
+                    MOV     DX, 1747H
+                    INT     10H
                 ;}
-                ;{ GET PLAYER2 NAME
-                    MOV    AH, 0AH
-                    LEA    DX, PLAYER2NAME    
-                    INT    21H
-                ;}
+                MOV CX,15
+                MOV SI,OFFSET PLAYER2NAME
+
+                READ_PLAYER2_NAME:
+                    MOV AH,1H                        ;READ ONE CHAR
+                    INT 21H
+                    CMP AL,13                        ;IF HE PRESS ENTER WE WILL MAKE CHECKS ON THE FIRST CHAR
+                    JZ CHECK
+                    MOV [SI],AL                      ;IF NOT WE WILL STORE THE CHAR
+                    INC SI  
+                LOOP READ_PLAYER2_NAME
+
+                
+            CHECK: 
+                MOV SI,OFFSET PLAYER2NAME
+                MOV AL,[SI]                         
+                CMP AL,41H
+                JL PRINT_MESSAGE                 ;IF CHAR<'A' 
+                CMP AL,5AH
+                JLE FINISH                         ;IF CHAR >'A'&CHAR<'Z'
+                CMP AL,61H
+                JL PRINT_MESSAGE                 ;IF CHAR <'a'
+                CMP AL,7AH 
+                JA PRINT_MESSAGE                 ;IF CHAR >'z'
+            FINISH:    
 
 ENDM NM2

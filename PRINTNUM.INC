@@ -2,8 +2,8 @@
 ;-----------------------------------------------------------------------------
 ;  macro to print any number providing the hexadecimal representation 
 ;-----------------------------------------------------------------------------
-
-PRINTNUM MACRO BINARY, DECIMAL
+;TO REMEBER  TIME 35 ,1
+PRINTNUM MACRO BINARY, DECIMAL,POSITION_X,POSITION_Y
    LOCAL BACK 
    mov DECIMAL, '0'
    mov DECIMAL + 1, '0'
@@ -22,8 +22,8 @@ PRINTNUM MACRO BINARY, DECIMAL
       JA BACK 
     
    MOV AH, 2
-   MOV DH, 1    ;Y POSITION FOR PRINTING
-   MOV DL, 35    ;X POSITION FOR PRINTING
+   MOV DH, POSITION_Y    ;Y POSITION FOR PRINTING
+   MOV DL, POSITION_X    ;X POSITION FOR PRINTING
    INT 10H
     
    MOV AH, 9H      ;PRINT THE NUMBER

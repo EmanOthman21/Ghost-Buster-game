@@ -49,6 +49,8 @@ INCLUDE DRAW.INC
 INCLUDE DCOL.INC
 INCLUDE NAMES.INC
 INCLUDE NM2.INC
+INCLUDE DISPLAY.INC
+
  .MODEL   LARGE;TINY   :DATA+CODE = 64KB    
             ;SMALL  :DATA = 64KB AND CODE = 64KB
             ;MEDIUM :DATA = 64KB BUT NO CODE RESTRICTION
@@ -143,6 +145,10 @@ STARTPOS_X_PORTAL3 DW ? ;LOCATION OF THE GHOST PORTAL
 STARTPOS_Y_PORTAL3 DW ? ;LOCATION OF THE GHOST PORTAL
 TYPE_GHOST3 DW 0     ;TO CHOOSE ONE OF THREE SHPAES OF GHOSTS  (0, 1, 2)
 
+PLAYER1_SCORE DW 0
+PLAYER2_SCORE DW 0
+SCORE1_DECIMAL DB 4 DUP('$')   
+SCORE2_DECIMAL DB 4 DUP('$')   
 
 
 TIME DW 120           ; TIMER TERMINATES THE GAME WHEN ZERO
@@ -171,7 +177,8 @@ PLAYER1NAME DB 20, ?, 20 DUP ('$')
 PLAYER2NAME DB 20, ?, 20 DUP ('$')  
 PLAYER1REQUESRNAME DB 'PLAYER1: PLEASE ENTER YOUR NAME: $'
 PLAYER2REQUESRNAME DB 'PLAYER2: PLEASE ENTER YOUR NAME: $'
-
+SPACE DB 15 DUP(' '),'$'
+SCORE DB 'YOUR SCORE: $'
 
 
 MENUITEM1 DB 'PRESS F1 TO START CHATTING$'
@@ -190,7 +197,6 @@ MAIN                PROC
  ;GET PLAYER NAMES
    NAMES
    NM2
-
    CALL MAIN_MENU
   
 ;{PUT INITIAL VAULE FOR THE SEED
@@ -200,13 +206,17 @@ MAIN                PROC
    MOV   RANDSEED, DX    ; SEED WITH THE SYSTEM TIME
 
 ;}
+MAIN ENDP
+;---------------------------------------
+GAME_LOOP PROC
+   CALL RESET_DATA
    MAINLOOP:
    ;{
          MOV    AX, 4F02H     ; THIS TO HANDLE FLICKERING WE REOPEN THE VIDEO MODE EVERYTIME 
          MOV    BX, 100H
          INT    10H
 
-         PRINTNUM     TIME, TIME_DECIMAL    ;macro to display time
+         PRINTNUM     TIME, TIME_DECIMAL,35,1    ;macro to display time
          CMP    TIME, 0                    ;END GAME AT TIME 0
          JE     ENDPROGRAM1
          MOV    AH, 2CH
@@ -388,11 +398,11 @@ MAIN                PROC
                   ;(
                     DRAW 60,60,190,190,03
                     CALL SOUND
-                    MOV    AH,4CH
-                    INT    21H
+                    DISPLAY_RESULT 
+                    CALL MAIN_MENU
                   ;)  
                ;}
-MAIN                ENDP   
+GAME_LOOP         ENDP   
 
 ;------------------------------------------------------------------------------------
 ;  _    _   _____  ______  _____    _____  _   _  _____   _    _  _______  
@@ -489,7 +499,7 @@ USERINPUT PROC NEAR
          CMP AL, 32 
          JNE MOVEUP2
          CALL FIRE_BULLET_1
-         JMP BACKTOMAINLOOP
+         JMP BACKTOMAINLOOP_1
       ;}
 
       MOVEUP2:
@@ -500,7 +510,7 @@ USERINPUT PROC NEAR
          MOV    BX, UPPERBOUND_Y
          SUB    CX, BX
          CMP    CX, 3  ;CURRENT Y DISTANCE TO THE BOUNDARY VS REMAINING DISTANCE TO THE BOUNDARY
-         JL     BACKTOMAINLOOP
+         JL     BACKTOMAINLOOP_2
          SUB    STARTPOS_Y_PLAYER2, 3
          JMP    BACKTOMAINLOOP   
       ;}
@@ -514,7 +524,7 @@ USERINPUT PROC NEAR
          MOV    BX, LOWERBOUND_Y
          SUB    BX, CX
          CMP    BX, 3  ;CURRENT Y DISTANCE TO THE BOUNDARY VS REMAINING DISTANCE TO THE BOUNDARY
-         JL     BACKTOMAINLOOP
+         JL     BACKTOMAINLOOP_2
          ADD    STARTPOS_Y_PLAYER2, 3
          JMP    BACKTOMAINLOOP 
       ;}
@@ -524,9 +534,9 @@ USERINPUT PROC NEAR
          CMP    AL, 'o' 
          JNE    ORIENT_DOWN2
          CMP    ORIENTATION_PLAYER2, 0
-         JE     BACKTOMAINLOOP
+         JE     BACKTOMAINLOOP_2
          SUB    ORIENTATION_PLAYER2, 1 
-         JMP    BACKTOMAINLOOP
+         JMP    BACKTOMAINLOOP_2
       ;}
 
       ORIENT_DOWN2:
@@ -534,9 +544,9 @@ USERINPUT PROC NEAR
          CMP    AL, 'u' 
          JNE    FIRE_BULLET_2
          CMP    ORIENTATION_PLAYER2, 4
-         JE     BACKTOMAINLOOP
+         JE     BACKTOMAINLOOP_2
          ADD    ORIENTATION_PLAYER2, 1 
-         JMP    BACKTOMAINLOOP          
+         JMP    BACKTOMAINLOOP_2         
       ;}
 
       FIRE_BULLET_2:
@@ -544,18 +554,17 @@ USERINPUT PROC NEAR
          CMP AL , 13
          JNE EXITPROG
          CALL FIRE_BULLET2
-         JMP BACKTOMAINLOOP
+         JMP BACKTOMAINLOOP_2
       ;}
 
+BACKTOMAINLOOP_2:
+JMP BACKTOMAINLOOP
       EXITPROG:
       ;{
          CMP    AL,1BH
-         JNE    BACKTOMAINLOOP
-         MOV    AX, 4F02H     ; THIS TO HANDLE FLICKERING WE REOPEN THE VIDEO MODE EVERYTIME 
-         MOV    BX, 100H
-         INT    10H
-         MOV    AH, 4CH
-         INT    21H
+         JNE    BACKTOMAINLOOP_2
+         DISPLAY_RESULT
+         CALL MAIN_MENU
       ;}
 
       ;{RETNURN STORED DATA
@@ -1687,6 +1696,7 @@ CHECK_HIT_BUL1_TANK2 PROC NEAR
          JNE NOHIT1
          ;MAY BE SPLIT IN ANOTHER PROC NEAREDURE JUSTFOR TESTING FOR NOW
          ;SUBTRACT THE DAMAGE FROM TANK2
+         INC PLAYER1_SCORE
          MOV AX, TANK_DMG_1         
          CMP TANK_HP_2,AX             ;IF HP<= THE OTHER TANK DAMAGE THIS PLAYER WILL LOSE
          JLE LOSER2
@@ -1696,6 +1706,7 @@ CHECK_HIT_BUL1_TANK2 PROC NEAR
 
       LOSER2: 
       MOV WINNER ,1                   ;SET WHO IS THE WINNER
+      ADD PLAYER1_SCORE,100
       CALL PLAYER_LOST                ;TO PRINT RESULTS    
       ;}
    NOHIT1:   
@@ -1723,6 +1734,7 @@ CHECK_HIT_BUL1_GHOST1 PROC NEAR
       JNE GHOST1_LIVES
       CMP EXISTS_GHOST1, 1
       JNE GHOST1_LIVES
+      INC PLAYER1_SCORE
       ;POWER-UPS
       ;( 
       CMP POWERUP_GHOST1,0         ;IF POWERUPS=0 IT WILL INCREASE THE HP BY 1 UNLESS HE HAS HP=10
@@ -1788,7 +1800,7 @@ CHECK_HIT_BUL1_GHOST2 PROC NEAR
       JNE GHOST2_LIVES
       CMP EXISTS_GHOST2,1
       JNE GHOST2_LIVES
-
+      INC PLAYER1_SCORE
       ;POWER-UPS
       ;( 
       CMP POWERUP_GHOST2,0
@@ -1855,6 +1867,7 @@ CHECK_HIT_BUL1_GHOST3 PROC NEAR
       JNE GHOST3_LIVES
       CMP EXISTS_GHOST3,1
       JNE GHOST3_LIVES
+      INC PLAYER1_SCORE
       ;POWER-UPS
       ;( 
       CMP POWERUP_GHOST3,0
@@ -1918,6 +1931,7 @@ CHECK_HIT_BUL2_TANK1 PROC NEAR
       ;{
          CMP BULLET_2_STATUS, 0
          JNE NOHIT2
+         INC PLAYER2_SCORE
          ;MAY BE SPLIT IN ANOTHER PROC NEAREDURE JUSTFOR TESTING FOR NOW
          ;SUBTRACT THE DAMAGE FROM TANK2
          MOV AX, TANK_DMG_2        ;IF HP<= THE OTHER TANK DAMAGE THIS PLAYER WILL LOSE
@@ -1927,6 +1941,7 @@ CHECK_HIT_BUL2_TANK1 PROC NEAR
          JMP NOHIT2
          LOSER1:
          MOV WINNER,2
+         ADD PLAYER2_SCORE,100
          CALL PLAYER_LOST
       ;}
    NOHIT2:   
@@ -1953,6 +1968,7 @@ CHECK_HIT_BUL2_GHOST1 PROC NEAR
       JNE GHOST1_LIVES2
       CMP EXISTS_GHOST1,1
       JNE GHOST1_LIVES2
+      INC PLAYER2_SCORE
       ;POWER-UPS
       ;( 
       CMP POWERUP_GHOST1,0
@@ -2018,6 +2034,7 @@ CHECK_HIT_BUL2_GHOST2 PROC NEAR
       JNE GHOST2_LIVES2
       CMP EXISTS_GHOST2,1
       JNE GHOST2_LIVES2
+      INC PLAYER2_SCORE
        ;POWER-UPS
       ;( 
       CMP POWERUP_GHOST2,0
@@ -2082,6 +2099,7 @@ CHECK_HIT_BUL2_GHOST3 PROC NEAR
       JNE GHOST3_LIVES2
       CMP EXISTS_GHOST3,1
       JNE GHOST3_LIVES2
+      INC PLAYER2_SCORE
       ;POWER-UPS
       ;( 
       CMP POWERUP_GHOST3,0
@@ -2528,20 +2546,21 @@ DRW_PRUP_BAR_2 PROC NEAR
 DRW_PRUP_BAR_2 ENDP
 
 ;---------------------------
-; LOSSER 
+; LOSER 
 ;---------------------------
 PLAYER_LOST PROC NEAR 
 
-         MOV    AX, 4F02H     ; THIS TO HANDLE FLICKERING WE REOPEN THE VIDEO MODE EVERYTIME 
-         MOV    BX, 100H
-         INT    10H
+ MOV    AX, 4F02H     ; THIS TO HANDLE FLICKERING WE REOPEN THE VIDEO MODE EVERYTIME 
+ MOV    BX, 100H
+ INT    10H
+
 YWN 40,40,150,220,04                ;DRAW YOU WON WITH RED COLOR  
 CMP WINNER,1 
 JNZ PLAYER2_WON
 ;(                                  
    MOV SI,OFFSET BITMAP_UP_PLAYER1
    DRAW_OBJECT TANKSIZE ,SI,280,100    ;DRAW TANK 1 IF PLAYER 1 IS THE WINNER
-   JMP PRESS_TO_MENU
+    JMP PRESS_TO_MENU
 ;)
 PLAYER2_WON:
 ;(
@@ -2550,13 +2569,15 @@ PLAYER2_WON:
    DRAW_OBJECT TANKSIZE ,SI,280,100 
 ;)
  PRESS_TO_MENU: 
-      CALL SOUND
-      MOV    AH,4CH
-      INT    21H
+
+      CALL SOUND 
+      DISPLAY_RESULT 
+      CALL MAIN_MENU
+    
 PLAYER_LOST ENDP
 ;--------------------------------------------------------------------------------------
-;   _____  _   _  _______  ______  _____    ______             _____  ______
-;  |_   _|| \ | ||__    __||  ____||  __ \  |  ____|   /\      / ____||  ____|
+;   _____  _   _  _______  ______  _____    ______            _____  ______
+;  |_   _|| \ | ||__   __||  ____||  __ \  |  ____|   /\     / ____||  ____|
 ;    | |  |  \| |   | |   | |__   | |__) | | |__     /  \    | |     | |__ 
 ;    | |  | . ` |   | |   |  __|  |  _  /  |  __|   / /\ \   | |     |  __|
 ;   _| |_ | |\  |   | |   | |____ | | \ \  | |     / ____ \  | |____ | |____ 
@@ -2615,13 +2636,61 @@ PLAYER_LOST ENDP
    ;{ IF(USER PRESS F2)
          CMP    AH,3CH
          JNZ    MENUEE
+         
    ;}
    MOV    AH, 2CH  ;GET SYSTEM TIME
    INT    21H
    MOV    PREV_SYS_SECOND, DH  ;STORE THE CURRENT SECOND OF THE SYSTEM
+   CALL GAME_LOOP
    RETN
    MAIN_MENU ENDP
+    ;-----------------------------------------------------------
+   ;Reset data 
+   ;------------------------------------------
+   RESET_DATA PROC NEAR
+;{
+      PUSH AX
+      PUSH BX
+      PUSH CX
+      PUSH DX
+
+      MOV STARTPOS_X_PLAYER1,50
+      MOV STARTPOS_Y_PLAYER1,150
+      MOV TANK_HP_1,10
+      MOV TANK_SPEED_1,3
+      MOV TANK_DMG_1,1
+      MOV ORIENTATION_PLAYER1,2
+
+      MOV STARTPOS_X_PLAYER2,550
+      MOV STARTPOS_Y_PLAYER2 ,150
+      MOV TANK_HP_2 ,10
+      MOV TANK_SPEED_2,3
+      MOV TANK_DMG_2 ,1                              
+      MOV ORIENTATION_PLAYER2,2 
+      MOV BULLET_1_STATUS,0
+      MOV BULLET_2_STATUS,0
+
+      MOV BULLET_1_SPEED ,10 
+      MOV BULLET_1_SPEED_POWER_NUM , 0
+      MOV BULLET_2_SPEED , 10 
+      MOV BULLET_2_SPEED_POWER_NUM , 0 
+
+      MOV PLAYER1_SCORE,0
+      MOV PLAYER2_SCORE,0
+
+      MOV TIME , 120          
    
+      POP DX
+      POP CX
+      POP BX
+      POP AX 
+      RETN
+;}
+   RESET_DATA ENDP
+;------------------------------
+
+
+  
 END MAIN 
 
 

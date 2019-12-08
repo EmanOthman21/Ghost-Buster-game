@@ -54,7 +54,10 @@ PUSH   AX
 EXITPROG:
     POP  AX
     CALL CLOSEFILE
-    
+
+    MOV AX,@DATA
+    MOV DS,AX
+   
 RETF   
 SOUND ENDP
    
