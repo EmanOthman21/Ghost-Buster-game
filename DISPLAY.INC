@@ -86,14 +86,21 @@ LOCAL OUTERLOOP3, INNERLOOP3, UPPER3, LOWER3, LEFT3, RIGHT3,UPPER4, LOWER4, LEFT
                 ;}   
     ;{SET THE CURSOR            
                     MOV     AH, 2
-                    MOV     DX, 0A12H
+                    MOV     DX, 0912H
                     INT     10H
                 ;}    
+
+                 MOV     AH,09             
+                 LEA     DX,PLAYER1NAME
+                 INT     21H  
+                 MOV     AH, 2
+                 MOV     DX, 0B12H
+                 INT     10H 
     ;{PRINT THE SCORE OF PLAYER1
                  MOV     AH,09             
                  LEA     DX,SCORE 
                  INT     21H     
-                 PRINTNUM     PLAYER1_SCORE, SCORE1_DECIMAL,30,10
+                 PRINTNUM     PLAYER1_SCORE, SCORE1_DECIMAL,30,11
                 ;}
 
     ;{Draw a BLUE square 
@@ -144,14 +151,20 @@ LOCAL OUTERLOOP3, INNERLOOP3, UPPER3, LOWER3, LEFT3, RIGHT3,UPPER4, LOWER4, LEFT
                 ;} 
                 ;{SET CURSOR  
                     MOV     AH, 2
-                    MOV     DX, 1712H
+                    MOV     DX, 1612H
                     INT     10H
                 ;}
+                 MOV     AH,09             
+                 LEA     DX,PLAYER2NAME
+                 INT     21H 
+                  MOV     AH, 2
+                  MOV     DX, 1812H
+                  INT     10H
                 ;{ PRINT THE SCORE OF PLAYER2
                  MOV     AH,09             
                  LEA     DX,SCORE 
                  INT     21H     
-                 PRINTNUM     PLAYER2_SCORE, SCORE2_DECIMAL,30,23
+                 PRINTNUM     PLAYER2_SCORE, SCORE2_DECIMAL,30,24
                  ;}
         ;{DELAY       
         MOV BH,04H         ;4 SECONDS FOR DELAY       
