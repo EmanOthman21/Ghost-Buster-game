@@ -211,7 +211,7 @@ GAME_LOOP PROC NEAR
 
          PRINTNUM     TIME, TIME_DECIMAL,35,1    ;macro to display time
          CMP    TIME, 0                    ;END GAME AT TIME 0
-         JE     ENDPROGRAM1
+         JE     FAR PTR ENDPROGRAM
          MOV    AH, 2CH
          INT    21H
          CMP    DH, PREV_SYS_SECOND
@@ -264,12 +264,6 @@ GAME_LOOP PROC NEAR
                         CALL CHECK_HIT_GHOST3_TANK1
                      SKIP_GHOST3_CHECK1:
                ;}
-                  
-               ;{USELESS BLOCK TO HANDLE JUMP OUT OF RANGE
-                  JMP SKIP1
-                  ENDPROGRAM1: JMP ENDPROGRAM
-                  SKIP1:
-               ;}
 
                ;{SIMILAR CHECKS FOR COLLISIONS BETWEEN THE GHOSTS AND TANK 2 IF THE GHOST EXISTS
                      CMP EXISTS_GHOST1, 1
@@ -288,6 +282,11 @@ GAME_LOOP PROC NEAR
                      SKIP_GHOST3_CHECK3:
                ;}
 
+               ;{USELESS BLOCK TO HANDLE JUMP OUT OF RANGE
+                  JMP SKIP1
+                  ENDPROGRAM1: JMP ENDPROGRAM
+                  SKIP1:
+               ;}
                      
 
                ;{BEFORE CHECKING COLLISION WE MUST MAKE SURE THE BULLET EXISTS IN THE FIRST PLACE
@@ -413,7 +412,7 @@ GAME_LOOP PROC NEAR
                   DRAW_CASE :
                   ;(
                     DRAW 60,60,190,190,03
-                    CALL SOUND
+                    ;CALL SOUND
                     DISPLAY_RESULT 
                     CALL CLEARKEYBOARDBUFFER
                   ;)  
@@ -564,9 +563,7 @@ USERINPUT PROC NEAR
       FIRE_BULLET_2:
       ;{
          CMP AL , 13
-         JNE SKIP_FIRE_BULLET_2
          CALL FIRE_BULLET2
-         SKIP_FIRE_BULLET_2:
          JMP BACKTOMAINLOOP_2
       ;}
 
@@ -1084,10 +1081,8 @@ DRAW_GHOST1 PROC NEAR
    DRAW_OBJECT GHOSTSIZE, SI, STARTPOS_X_GHOST1, STARTPOS_Y_GHOST1
    
   
-   JMP SKIP_MOVING_GHOST1_OUT
+
    ENDDRAW_GHOST1:
-   MOV STARTPOS_Y_GHOST1, 0
-   SKIP_MOVING_GHOST1_OUT:
    POP DX
    POP CX
    POP BX
@@ -1194,10 +1189,8 @@ DRAW_GHOST2 PROC NEAR
    DRAW_OBJECT GHOSTSIZE, SI, STARTPOS_X_GHOST2, STARTPOS_Y_GHOST2
    
   
-   JMP SKIP_MOVING_GHOST2_OUT
+
    ENDDRAW_GHOST2:
-   MOV STARTPOS_Y_GHOST2, 0
-   SKIP_MOVING_GHOST2_OUT:
    POP DX
    POP CX
    POP BX
@@ -1302,11 +1295,8 @@ DRAW_GHOST3 PROC NEAR
    DRAW_OBJECT GHOSTSIZE, SI, STARTPOS_X_GHOST3, STARTPOS_Y_GHOST3
    
   
-   JMP SKIP_MOVING_GHOST3_OUT
+
    ENDDRAW_GHOST3:
-   ;MOVE THE GHOST OUTISIDE BOUNDARIES OF GAME
-   MOV STARTPOS_Y_GHOST3, 0
-   SKIP_MOVING_GHOST3_OUT:
    POP DX
    POP CX
    POP BX
@@ -2609,8 +2599,6 @@ PLAYER_LOST ENDP
    RESET_DATA PROC NEAR
 ;{
     
-      MOV UPPERBOUND_Y, 55
-      MOV LOWERBOUND_Y, 360
 
       MOV STARTPOS_X_PLAYER1,50
       MOV STARTPOS_Y_PLAYER1,150
