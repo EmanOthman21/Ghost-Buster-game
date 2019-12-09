@@ -413,6 +413,7 @@ GAME_LOOP PROC NEAR
                     DRAW 60,60,190,190,03
                     CALL SOUND
                     DISPLAY_RESULT 
+                    CALL CLEARKEYBOARDBUFFER
                   ;)  
                ;}
       END_MAIN_LOOP:
@@ -2518,6 +2519,7 @@ PLAYER2_WON:
 
       CALL SOUND 
       DISPLAY_RESULT 
+      CALL CLEARKEYBOARDBUFFER
       RETN
     
 PLAYER_LOST ENDP
