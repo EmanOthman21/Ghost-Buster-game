@@ -211,7 +211,7 @@ GAME_LOOP PROC NEAR
 
          PRINTNUM     TIME, TIME_DECIMAL,35,1    ;macro to display time
          CMP    TIME, 0                    ;END GAME AT TIME 0
-         JE     FAR PTR ENDPROGRAM
+         JE     ENDPROGRAM1
          MOV    AH, 2CH
          INT    21H
          CMP    DH, PREV_SYS_SECOND
@@ -264,6 +264,12 @@ GAME_LOOP PROC NEAR
                         CALL CHECK_HIT_GHOST3_TANK1
                      SKIP_GHOST3_CHECK1:
                ;}
+                  
+               ;{USELESS BLOCK TO HANDLE JUMP OUT OF RANGE
+                  JMP SKIP1
+                  ENDPROGRAM1: JMP ENDPROGRAM
+                  SKIP1:
+               ;}
 
                ;{SIMILAR CHECKS FOR COLLISIONS BETWEEN THE GHOSTS AND TANK 2 IF THE GHOST EXISTS
                      CMP EXISTS_GHOST1, 1
@@ -282,11 +288,6 @@ GAME_LOOP PROC NEAR
                      SKIP_GHOST3_CHECK3:
                ;}
 
-               ;{USELESS BLOCK TO HANDLE JUMP OUT OF RANGE
-                  JMP SKIP1
-                  ENDPROGRAM1: JMP ENDPROGRAM
-                  SKIP1:
-               ;}
                      
 
                ;{BEFORE CHECKING COLLISION WE MUST MAKE SURE THE BULLET EXISTS IN THE FIRST PLACE
