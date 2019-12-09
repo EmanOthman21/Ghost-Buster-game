@@ -211,7 +211,7 @@ GAME_LOOP PROC NEAR
 
          PRINTNUM     TIME, TIME_DECIMAL,35,1    ;macro to display time
          CMP    TIME, 0                    ;END GAME AT TIME 0
-         JE     ENDPROGRAM1
+         JE     FAR PTR ENDPROGRAM
          MOV    AH, 2CH
          INT    21H
          CMP    DH, PREV_SYS_SECOND
@@ -237,6 +237,16 @@ GAME_LOOP PROC NEAR
                      CALL   MOVE_GHOST1
                      CALL   MOVE_GHOST2
                      CALL   MOVE_GHOST3
+                     CALL   DRAW_PORTALS
+                     CALL   DRAW_TANK1
+                     CALL   DRAW_TANK2
+					      CALL   DRAW_HEALTH_BAR_1
+				      	CALL   DRAW_HEALTH_BAR_2
+                     CALL   DRAW_GHOST1
+                     CALL   DRAW_GHOST2
+                     CALL   DRAW_GHOST3
+                     CALL MOVE_BULLET_1
+                     CALL MOVE_BULLET_2
 
                ;{CHECK FOR COLLISIONS BETWEEN THE GHOSTS AND TANK 1 IF THE GHOST EXISTS
                      CMP EXISTS_GHOST1, 1
@@ -277,16 +287,7 @@ GAME_LOOP PROC NEAR
                   ENDPROGRAM1: JMP ENDPROGRAM
                   SKIP1:
                ;}
-                     CALL   DRAW_PORTALS
-                     CALL   DRAW_TANK1
-                     CALL   DRAW_TANK2
-					      CALL   DRAW_HEALTH_BAR_1
-				      	CALL   DRAW_HEALTH_BAR_2
-                     CALL   DRAW_GHOST1
-                     CALL   DRAW_GHOST2
-                     CALL   DRAW_GHOST3
-                     CALL MOVE_BULLET_1
-                     CALL MOVE_BULLET_2
+                     
 
                ;{BEFORE CHECKING COLLISION WE MUST MAKE SURE THE BULLET EXISTS IN THE FIRST PLACE
                      ;CHECK HITTING ANY GHOST
