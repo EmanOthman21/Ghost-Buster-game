@@ -41,9 +41,11 @@ ALOOP:
          JZ     CON      
     ;} 
     ;{
-         CALL   CLRBUFF
-         CMP    AL,1BH
-         JE    EXITPROG
+        MOV    AH, 0
+        INT    16H
+        CALL   CLRBUFF
+        CMP    AL,1BH
+        JE    EXITPROG
     ;}
     CON:
     POP AX

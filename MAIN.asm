@@ -58,7 +58,7 @@ INCLUDE DISPLAY.INC
             ;LARGE  :SINGLE SET OF DATA CAN NOT EXCEED 64KB
             ;HUGE   :NO RESTRICTION
 ;------------------------------------------------------
-.STACK 64   ;64 BYTES FOR STACK      
+.STACK 1024   ;1024 BYTES FOR STACK      
 ;------------------------------------------------------                    
 .DATA                           
 UPPERBOUND_Y DW 55   ;THOSE BOUNDARY VALUES ARE BASED ON 640*400 VIDEO MODE
@@ -191,25 +191,18 @@ MENUITEM3 DB 'PRESS ESC TO EXIT THE PROGRAM$'
 .CODE                                                 
 MAIN                PROC         
    MOV     AX,@DATA   
-   MOV     DS,AX
-   MOV     ES,AX      
+   MOV     DS,AX      
  
  ;GET PLAYER NAMES
    NAMES
    NM2
-   CALL MAIN_MENU
+   GAME_RESET:
+      CALL MAIN_MENU
+      JMP GAME_RESET
   
-;{PUT INITIAL VAULE FOR THE SEED
-   
-   MOV   AH, 0
-   INT   1AH
-   MOV   RANDSEED, DX    ; SEED WITH THE SYSTEM TIME
-
-;}
 MAIN ENDP
 ;---------------------------------------
-GAME_LOOP PROC
-   CALL RESET_DATA
+GAME_LOOP PROC NEAR
    MAINLOOP:
    ;{
          MOV    AX, 4F02H     ; THIS TO HANDLE FLICKERING WE REOPEN THE VIDEO MODE EVERYTIME 
@@ -365,43 +358,65 @@ GAME_LOOP PROC
                      MOV     AH, 86H
                      INT     15H
                ;}
+
+               ;{EVERY GAMELOOP ITERATION WE CHECK FOR A WINNER
+                  ;{CHECK IF THE SECOND PLAYER WON
+                     MOV WINNER, 2
+                     CMP TANK_HP_1, 0
+                     JLE FAR PTR ENDPROGRAM
+                  ;}
+                  ;{CHECK IF THE FIRST PLAYER WON
+                     MOV WINNER, 1
+                     CMP TANK_HP_2, 0
+                     JLE FAR PTR ENDPROGRAM
+                  ;}
+               ;}
                
                ;{ IF(USER PRESS ANY KEY)
                      MOV    AH, 1
                      INT    16H
                      JNZ    CHECKKEY
                ;}
+               MAINLOOP1:
                      JMP    MAINLOOP
             CHECKKEY:
                ;{
                      CALL   USERINPUT
-                     JMP    MAINLOOP
+                     ;{IF THE PRESSED KEY IS ESC START THE GAME AGAIN
+                        CMP AL, 1BH
+                        JNE MAINLOOP1
+                     ;}
                ;}
 
 
             ENDPROGRAM: 
                ;{       
-                    MOV AX, TANK_HP_2
-                    CMP TANK_HP_1,AX
-                    JE DRAW_CASE
-                    JA PLAYER1_WON
-                    MOV WINNER,2
-                    JMP RESULT
+                  MOV AX, TANK_HP_2
+                  CMP TANK_HP_1,AX
+                  JE DRAW_CASE
+                  JG PLAYER1_WON
+                  MOV WINNER,2
+                  JMP RESULT
 
-                    PLAYER1_WON:
-                    MOV WINNER,1
+                  PLAYER1_WON:
+                  MOV WINNER,1
 
-                    RESULT:
-                    CALL PLAYER_LOST
+                  RESULT:
+                  CALL PLAYER_LOST
+                  JMP END_MAIN_LOOP
 
+                  MOV AX, TANK_HP_2 ;TO CHECK FOR REAL DRAW 
+                  CMP TANK_HP_1, AX
+                  JNE FAR PTR END_MAIN_LOOP
                   DRAW_CASE :
                   ;(
                     DRAW 60,60,190,190,03
                     CALL SOUND
                     DISPLAY_RESULT 
-                    CALL MAIN_MENU
                   ;)  
                ;}
+      END_MAIN_LOOP:
+            RETN
 GAME_LOOP         ENDP   
 
 ;------------------------------------------------------------------------------------
@@ -434,12 +449,6 @@ CLEARKEYBOARDBUFFER		ENDP
 ;--------------------------------------------------------------------------
 USERINPUT PROC NEAR 
 ;{    
-      ;{SAVE DATA
-         PUSH    AX
-         PUSH    BX
-         PUSH    CX
-         PUSH    DX
-      ;}
       ;{ TAKE THE USER INPUT FROM THE KEYBOARD BUFFER
          MOV    AH, 0
          INT    16H      
@@ -552,29 +561,16 @@ USERINPUT PROC NEAR
       FIRE_BULLET_2:
       ;{
          CMP AL , 13
-         JNE EXITPROG
          CALL FIRE_BULLET2
          JMP BACKTOMAINLOOP_2
       ;}
 
 BACKTOMAINLOOP_2:
-JMP BACKTOMAINLOOP
-      EXITPROG:
-      ;{
-         CMP    AL,1BH
-         JNE    BACKTOMAINLOOP_2
-         DISPLAY_RESULT
-         CALL MAIN_MENU
-      ;}
 
       ;{RETNURN STORED DATA
          BACKTOMAINLOOP:
-         POP DX
-         POP CX
-         POP BX
-         POP AX
       ;}   
-RETN
+RETN    ; IMPORTANT WE NEED AL FROM THIS PROC TO STAY THE SAME AFTER RETURN TO CHECK FOR THE ESC KEY PRESS OUTSIDE THIS PROC
 USERINPUT		ENDP 
 ;----------------------------------------------------------------------------
 ;  _______         _   _  _  __
@@ -1695,19 +1691,10 @@ CHECK_HIT_BUL1_TANK2 PROC NEAR
          CMP BULLET_1_STATUS, 0
          JNE NOHIT1
          ;MAY BE SPLIT IN ANOTHER PROC NEAREDURE JUSTFOR TESTING FOR NOW
-         ;SUBTRACT THE DAMAGE FROM TANK2
-         INC PLAYER1_SCORE
+         ;SUBTRACT THE DAMAGE FROM TANK2 
          MOV AX, TANK_DMG_1         
-         CMP TANK_HP_2,AX             ;IF HP<= THE OTHER TANK DAMAGE THIS PLAYER WILL LOSE
-         JLE LOSER2
-         
-         SUB TANK_HP_2, AX            ;OTHERWISE HIS HP WILL DECREASE BY THE OTHER TANK DAMAGE
-         JMP NOHIT1
-
-      LOSER2: 
-      MOV WINNER ,1                   ;SET WHO IS THE WINNER
-      ADD PLAYER1_SCORE,100
-      CALL PLAYER_LOST                ;TO PRINT RESULTS    
+         ADD PLAYER1_SCORE, AX
+         SUB TANK_HP_2, AX            ;OTHERWISE HIS HP WILL DECREASE BY THE OTHER TANK DAMAGE  
       ;}
    NOHIT1:   
    POP DX
@@ -1762,11 +1749,11 @@ CHECK_HIT_BUL1_GHOST1 PROC NEAR
       ;)
       SPEED_LIMIT1:
       ;(
-               CMP BULLET_1_SPEED_POWER_NUM,3          ;IF NUMBER OF SPEED POWERUPS =3 KILL THE GHOST ONLY
-               JNL T1_KILL_G1
-               MOV AX,BULLET_SPEED_POWERUPS
-               ADD BULLET_1_SPEED,AX
-               INC BULLET_1_SPEED_POWER_NUM
+         CMP BULLET_1_SPEED_POWER_NUM,3          ;IF NUMBER OF SPEED POWERUPS =3 KILL THE GHOST ONLY
+         JNL T1_KILL_G1
+         MOV AX,BULLET_SPEED_POWERUPS
+         ADD BULLET_1_SPEED,AX
+         INC BULLET_1_SPEED_POWER_NUM
       ;)
     T1_KILL_G1:  
      ;(      
@@ -1829,11 +1816,11 @@ CHECK_HIT_BUL1_GHOST2 PROC NEAR
       ;)
       SPEED_LIMIT2:
       ;( 
-               CMP BULLET_1_SPEED_POWER_NUM,3
-               JNL T1_KILL_G2
-               MOV AX,BULLET_SPEED_POWERUPS
-               ADD BULLET_1_SPEED,AX
-               INC BULLET_1_SPEED_POWER_NUM
+         CMP BULLET_1_SPEED_POWER_NUM,3
+         JNL T1_KILL_G2
+         MOV AX,BULLET_SPEED_POWERUPS
+         ADD BULLET_1_SPEED,AX
+         INC BULLET_1_SPEED_POWER_NUM
       ;)
     T1_KILL_G2:  
       ;(
@@ -1896,11 +1883,11 @@ CHECK_HIT_BUL1_GHOST3 PROC NEAR
       ;)
       SPEED_LIMIT3:
       ;(
-               CMP BULLET_1_SPEED_POWER_NUM,3
-               JNL T1_KILL_G3
-               MOV AX,BULLET_SPEED_POWERUPS
-               ADD BULLET_1_SPEED,AX
-               INC BULLET_1_SPEED_POWER_NUM
+         CMP BULLET_1_SPEED_POWER_NUM,3
+         JNL T1_KILL_G3
+         MOV AX,BULLET_SPEED_POWERUPS
+         ADD BULLET_1_SPEED,AX
+         INC BULLET_1_SPEED_POWER_NUM
       ;)
     T1_KILL_G3:  
       ;GHOST 3 SHOULD DIE, WE MAY CHECK FOR POWER-UPS HERE
@@ -1931,18 +1918,11 @@ CHECK_HIT_BUL2_TANK1 PROC NEAR
       ;{
          CMP BULLET_2_STATUS, 0
          JNE NOHIT2
-         INC PLAYER2_SCORE
          ;MAY BE SPLIT IN ANOTHER PROC NEAREDURE JUSTFOR TESTING FOR NOW
          ;SUBTRACT THE DAMAGE FROM TANK2
          MOV AX, TANK_DMG_2        ;IF HP<= THE OTHER TANK DAMAGE THIS PLAYER WILL LOSE
-         CMP TANK_HP_1,AX
-         JLE LOSER1
+         ADD PLAYER2_SCORE, AX
          SUB TANK_HP_1, AX         ;OTHERWISE HIS HP WILL DECREASE BY THE OTHER TANK DAMAGE
-         JMP NOHIT2
-         LOSER1:
-         MOV WINNER,2
-         ADD PLAYER2_SCORE,100
-         CALL PLAYER_LOST
       ;}
    NOHIT2:   
    POP DX
@@ -1997,11 +1977,11 @@ CHECK_HIT_BUL2_GHOST1 PROC NEAR
       ;)
       SPEED2_LIMIT1:
       ;(
-               CMP BULLET_2_SPEED_POWER_NUM,3
-               JNL T2_KILL_G1
-               MOV AX,BULLET_SPEED_POWERUPS
-               ADD BULLET_2_SPEED,AX
-               INC BULLET_2_SPEED_POWER_NUM
+         CMP BULLET_2_SPEED_POWER_NUM,3
+         JNL T2_KILL_G1
+         MOV AX,BULLET_SPEED_POWERUPS
+         ADD BULLET_2_SPEED,AX
+         INC BULLET_2_SPEED_POWER_NUM
       ;)
       ;GHOST 1 SHOULD DIE, WE MAY CHECK FOR POWER-UPS HERE
       T2_KILL_G1:
@@ -2063,11 +2043,11 @@ CHECK_HIT_BUL2_GHOST2 PROC NEAR
       ;)
       SPEED2_LIMIT2:
       ;(
-               CMP BULLET_2_SPEED_POWER_NUM,3
-               JNL T2_KILL_G2
-               MOV AX,BULLET_SPEED_POWERUPS
-               ADD BULLET_2_SPEED,AX
-               INC BULLET_2_SPEED_POWER_NUM
+         CMP BULLET_2_SPEED_POWER_NUM,3
+         JNL T2_KILL_G2
+         MOV AX,BULLET_SPEED_POWERUPS
+         ADD BULLET_2_SPEED,AX
+         INC BULLET_2_SPEED_POWER_NUM
       ;)
       ;GHOST 2 SHOULD DIE, WE MAY CHECK FOR POWER-UPS HERE
       T2_KILL_G2:
@@ -2128,11 +2108,11 @@ CHECK_HIT_BUL2_GHOST3 PROC NEAR
       ;)
       SPEED2_LIMIT3:
       ;(
-               CMP BULLET_2_SPEED_POWER_NUM,3
-               JNL T2_KILL_G3
-               MOV AX,BULLET_SPEED_POWERUPS
-               ADD BULLET_2_SPEED,AX
-               INC BULLET_2_SPEED_POWER_NUM
+         CMP BULLET_2_SPEED_POWER_NUM,3
+         JNL T2_KILL_G3
+         MOV AX,BULLET_SPEED_POWERUPS
+         ADD BULLET_2_SPEED,AX
+         INC BULLET_2_SPEED_POWER_NUM
       ;)
       ;GHOST 3 SHOULD DIE, WE MAY CHECK FOR POWER-UPS HERE
       T2_KILL_G3:
@@ -2194,11 +2174,6 @@ CHECK_HIT_GHOST1_TANK1 PROC NEAR
       ;MOVE GHOST1 OUT OF BOUNDARIES TO AVOID COLLIDING WITH BULLETS WHILE BEING TRANSPARENT
          SUB STARTPOS_Y_GHOST1, 600   
       ;REDUCE THE TANK HP, WILL BE SPLIT IN A DIFFERENT PROC NEAR
-         CMP TANK_HP_1,1                     ;CHECK IF THE TANK LIFE POINTS IS STILL ABOVE 1
-         JNZ DECREASE_HP1_G1
-         MOV WINNER ,1                       ;IF IT IS THE LAST LIFE THIS PLAYER WILL LOSE
-         CALL PLAYER_LOST 
-      DECREASE_HP1_G1:
          SUB TANK_HP_1,1
       ;}   
    TANK1_SAFE1:   
@@ -2224,12 +2199,6 @@ CHECK_HIT_GHOST2_TANK1 PROC NEAR
       ;MOVE GHOST1 OUT OF BOUNDARIES TO AVOID COLLIDING WITH BULLETS WHILE BEING TRANSPARENT
          SUB STARTPOS_Y_GHOST2, 600   
       ;REDUCE THE TANK HP, WILL BE SPLIT IN A DIFFERENT PROC NEAR
-         CMP TANK_HP_1,1
-         JNZ DECREASE_HP1_G2
-         MOV WINNER,2
-         CALL PLAYER_LOST
-
-      DECREASE_HP1_G2:
          SUB TANK_HP_1,1
       ;}   
    TANK1_SAFE2:   
@@ -2255,12 +2224,6 @@ CHECK_HIT_GHOST3_TANK1 PROC NEAR
       ;MOVE GHOST1 OUT OF BOUNDARIES TO AVOID COLLIDING WITH BULLETS WHILE BEING TRANSPARENT
          SUB STARTPOS_Y_GHOST3, 600   
       ;REDUCE THE TANK HP, WILL BE SPLIT IN A DIFFERENT PROC NEAR
-         CMP TANK_HP_1,1
-         JNZ DECREASE_HP1_G3
-         MOV WINNER,2
-         CALL PLAYER_LOST
-        
-      DECREASE_HP1_G3:
          SUB TANK_HP_1,1
         
       ;}   
@@ -2287,12 +2250,6 @@ CHECK_HIT_GHOST1_TANK2 PROC NEAR
       ;MOVE GHOST1 OUT OF BOUNDARIES TO AVOID COLLIDING WITH BULLETS WHILE BEING TRANSPARENT
          SUB STARTPOS_Y_GHOST1, 600   
       ;REDUCE THE TANK HP, WILL BE SPLIT IN A DIFFERENT PROC NEAR
-         CMP TANK_HP_2,1
-         JNZ DECREASE_HP2_G1
-         MOV WINNER,1
-         CALL PLAYER_LOST
-        
-      DECREASE_HP2_G1:
         SUB TANK_HP_2,1
 
       ;}   
@@ -2319,12 +2276,6 @@ CHECK_HIT_GHOST2_TANK2 PROC NEAR
       ;MOVE GHOST1 OUT OF BOUNDARIES TO AVOID COLLIDING WITH BULLETS WHILE BEING TRANSPARENT
          SUB STARTPOS_Y_GHOST2, 600   
       ;REDUCE THE TANK HP, WILL BE SPLIT IN A DIFFERENT PROC NEAR
-           CMP TANK_HP_2,1
-           JNZ DECREASE_HP2_G2
-           MOV WINNER,1
-           CALL PLAYER_LOST
-         
-      DECREASE_HP2_G2:
         SUB TANK_HP_2,1
         
       ;}   
@@ -2351,13 +2302,6 @@ CHECK_HIT_GHOST3_TANK2 PROC NEAR
       ;MOVE GHOST1 OUT OF BOUNDARIES TO AVOID COLLIDING WITH BULLETS WHILE BEING TRANSPARENT
          SUB STARTPOS_Y_GHOST3, 600   
       ;REDUCE THE TANK HP, WILL BE SPLIT IN A DIFFERENT PROC NEAR
-      
-         CMP TANK_HP_2,1
-         JNZ DECREASE_HP2_G3
-         MOV WINNER,1
-         CALL PLAYER_LOST
-        
-      DECREASE_HP2_G3:
          SUB TANK_HP_2,1
          
       ;}   
@@ -2557,13 +2501,15 @@ PLAYER_LOST PROC NEAR
 YWN 40,40,150,220,04                ;DRAW YOU WON WITH RED COLOR  
 CMP WINNER,1 
 JNZ PLAYER2_WON
-;(                                  
+;(               
+   ADD PLAYER1_SCORE, 100
    MOV SI,OFFSET BITMAP_UP_PLAYER1
    DRAW_OBJECT TANKSIZE ,SI,280,100    ;DRAW TANK 1 IF PLAYER 1 IS THE WINNER
     JMP PRESS_TO_MENU
 ;)
 PLAYER2_WON:
 ;(
+   ADD PLAYER2_SCORE, 100
    YWN 40,40,150,220,01              ;DRAW YOU WON WITH BLUE COLOR -OVEERWRITE THE RED ONE- 
    MOV SI,OFFSET BITMAP_UP_PLAYER2
    DRAW_OBJECT TANKSIZE ,SI,280,100 
@@ -2572,7 +2518,7 @@ PLAYER2_WON:
 
       CALL SOUND 
       DISPLAY_RESULT 
-      CALL MAIN_MENU
+      RETN
     
 PLAYER_LOST ENDP
 ;--------------------------------------------------------------------------------------
@@ -2602,11 +2548,13 @@ PLAYER_LOST ENDP
          DRAW_OBJECT LOGOSIZE, SI, LOGO_X, LOGO_Y
    ;}
 
+   
+
    MENUEE:
    ;{ IF(USER PRESS ANY KEY)
          MOV    AH, 1
          INT    16H
-         JNZ    MENUEE
+         JZ    MENUEE
    ;}
 
    ;{TAKE INPUT AND CLEAR KEYBOARD BUFFER
@@ -2638,9 +2586,7 @@ PLAYER_LOST ENDP
          JNZ    MENUEE
          
    ;}
-   MOV    AH, 2CH  ;GET SYSTEM TIME
-   INT    21H
-   MOV    PREV_SYS_SECOND, DH  ;STORE THE CURRENT SECOND OF THE SYSTEM
+   CALL RESET_DATA
    CALL GAME_LOOP
    RETN
    MAIN_MENU ENDP
@@ -2649,10 +2595,7 @@ PLAYER_LOST ENDP
    ;------------------------------------------
    RESET_DATA PROC NEAR
 ;{
-      PUSH AX
-      PUSH BX
-      PUSH CX
-      PUSH DX
+    
 
       MOV STARTPOS_X_PLAYER1,50
       MOV STARTPOS_Y_PLAYER1,150
@@ -2675,15 +2618,25 @@ PLAYER_LOST ENDP
       MOV BULLET_2_SPEED , 10 
       MOV BULLET_2_SPEED_POWER_NUM , 0 
 
+      MOV EXISTS_GHOST1, 0
+      MOV EXISTS_GHOST2, 0
+      MOV EXISTS_GHOST3, 0
+
       MOV PLAYER1_SCORE,0
       MOV PLAYER2_SCORE,0
 
-      MOV TIME , 120          
+      MOV TIME , 120    
    
-      POP DX
-      POP CX
-      POP BX
-      POP AX 
+      ;{PUT INITIAL VAULE FOR THE SEED
+      MOV   AH, 0
+      INT   1AH
+      MOV   RANDSEED, DX    ; SEED WITH THE SYSTEM TIME
+      ;}
+
+      MOV    AH, 2CH  ;GET SYSTEM TIME
+      INT    21H
+      MOV    PREV_SYS_SECOND, DH  ;STORE THE CURRENT SECOND OF THE SYSTEM      
+      
       RETN
 ;}
    RESET_DATA ENDP
