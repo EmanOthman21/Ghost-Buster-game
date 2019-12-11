@@ -412,7 +412,7 @@ GAME_LOOP PROC NEAR
                   DRAW_CASE :
                   ;(
                     DRAW 60,60,190,190,03
-                    ;CALL SOUND
+                    CALL SOUND
                     DISPLAY_RESULT 
                     CALL CLEARKEYBOARDBUFFER
                   ;)  
@@ -563,8 +563,10 @@ USERINPUT PROC NEAR
       FIRE_BULLET_2:
       ;{
          CMP AL , 13
-         CALL FIRE_BULLET2
-         JMP BACKTOMAINLOOP_2
+         JNE SKIP_FIRE_BULLET_2
+         CALL FIRE_BULLET2	         
+         SKIP_FIRE_BULLET_2:
+         JMP BACKTOMAINLOOP_2	         
       ;}
 
 BACKTOMAINLOOP_2:
@@ -1080,12 +1082,13 @@ DRAW_GHOST1 PROC NEAR
    DRAW1:
    DRAW_OBJECT GHOSTSIZE, SI, STARTPOS_X_GHOST1, STARTPOS_Y_GHOST1
    
-  
-
-   ENDDRAW_GHOST1:
-   POP DX
-   POP CX
-   POP BX
+   JMP SKIP_MOVING_GHOST1_OUT
+   ENDDRAW_GHOST1:	   
+   MOV STARTPOS_Y_GHOST1, 0
+   SKIP_MOVING_GHOST1_OUT:
+   POP DX	   
+   POP CX	   
+   POP BX	   
    POP AX 
    RETN
 ;} 
@@ -1296,7 +1299,12 @@ DRAW_GHOST3 PROC NEAR
    
   
 
-   ENDDRAW_GHOST3:
+   JMP SKIP_MOVING_GHOST3_OUT
+   ENDDRAW_GHOST3:	   
+   ;MOVE THE GHOST OUTISIDE BOUNDARIES OF GAME
+   MOV STARTPOS_Y_GHOST3, 0
+   SKIP_MOVING_GHOST3_OUT:
+
    POP DX
    POP CX
    POP BX
@@ -2560,7 +2568,7 @@ PLAYER_LOST ENDP
          JZ    MENUEE
    ;}
 
-   ;{TAKE INPUT AND CLEAR KEYBOARD BUFFER
+   ;{ TAKE INPUT AND CLEAR KEYBOARD BUFFER
          MOV     AH, 0
          INT     16H 
          CALL    CLEARKEYBOARDBUFFER  
@@ -2598,7 +2606,10 @@ PLAYER_LOST ENDP
    ;------------------------------------------
    RESET_DATA PROC NEAR
 ;{
-    
+      MOV UPPERBOUND_Y, 55
+      MOV LOWERBOUND_Y, 360
+      
+
 
       MOV STARTPOS_X_PLAYER1,50
       MOV STARTPOS_Y_PLAYER1,150
