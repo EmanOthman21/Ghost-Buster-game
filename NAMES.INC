@@ -75,11 +75,6 @@ LOCAL OUTERLOOP1, INNERLOOP1, UPPER1, LOWER1
                     JNZ LEFT1
                 ;}
 
-                ;{DRAW TANK
-                    MOV SI , OFFSET BITMAP_UP_PLAYER1
-                    DRAW_OBJECT TANKSIZE, SI, 232, 350                
-
-                ;}
 
                 ENTER_MESSAGE:
                 ;{  
@@ -107,7 +102,7 @@ LOCAL OUTERLOOP1, INNERLOOP1, UPPER1, LOWER1
                     INT     21H
 
                     MOV     AH, 2                    ;SET THE CURSOR TO PRINT AFTER THE MESSAGE
-                    MOV     DX, 1747H
+                    MOV     DX, 1740H
                     INT     10H
                 ;}
               
