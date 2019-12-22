@@ -37,6 +37,18 @@ LOCAL OUTERLOOP, INNERLOOP, PRINT1, PRINT2, PRINT3
                     MOV     DX, 1B34H
                     INT     10H
                 ;}
+                cmp level_flag,1
+      jz rgm1
+      cmp level_flag,2
+         jmp skip99
+    rc_gm:  jmp GAME_REJECTED
+      skip99:
+          jmp skip98
+    rgm1:  jmp gamelevel1
+      skip98:
+      jmp skip97
+    rgm2:  jmp gamelevel2
+      skip97:
                 LEA     SI, level1
                 PRINT1:
                     ;{ PRINTING MENUETIME1

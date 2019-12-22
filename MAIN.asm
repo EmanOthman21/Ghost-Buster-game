@@ -3655,7 +3655,7 @@ SEND_GAME_INVITATION PROC NEAR
       JZ GAME_ACCEPTED
       ;RECEIVED A NO
       CMP RECEIVE_VALUE, 'n'
-      JZ far ptr GAME_REJECTED
+      JZ rc_gm
       ;IF THE RECEIVED IS NEITHER A YES NOR A NO
       ;TEMPORARILY WAIT TILL THE USER GIVES A YES OR A NO
       JMP WAIT_GAME_RESPONSE
@@ -3663,11 +3663,11 @@ SEND_GAME_INVITATION PROC NEAR
 
    GAME_ACCEPTED:
       ;BEFORE STARTING THE GAME, MAKE THE SENDING PLAYER THE HOST
-      cmp level_flag,1
-      jz far ptr gamelevel1
-      cmp level_flag,2
-      jz far ptr gamelevel2
+      
+      jz rgm2
       level
+   
+     
       stay: mov ah,1
       int 16h
       jz stay
