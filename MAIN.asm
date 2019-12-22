@@ -2777,6 +2777,7 @@ RECIEVING:
       MOV STARTPOS_X_PLAYER2,550
       MOV STARTPOS_Y_PLAYER2 ,150
       MOV TANK_HP_2 ,10
+          MOV TANK_HP_1 ,10
       
       MOV TANK_DMG_2 ,1                              
       MOV ORIENTATION_PLAYER2,2 
