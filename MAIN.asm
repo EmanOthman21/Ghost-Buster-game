@@ -554,7 +554,7 @@ USERINPUT PROC NEAR
       JNZ GUEST_CONTROLS
       MOVEUP1:
       ;{
-         CMP    AL, 'w' 
+         CMP    Ah, 48h 
          JNE    MOVEDOWN1
          MOV    CX, STARTPOS_Y_PLAYER1
          MOV    BX, UPPERBOUND_Y
@@ -567,7 +567,7 @@ USERINPUT PROC NEAR
       
       MOVEDOWN1:
       ;{
-         CMP    AL, 's' 
+         CMP    Ah, 50h 
          JNE    ORIENT_UP1
          MOV    CX, STARTPOS_Y_PLAYER1
          ADD    CX, TANKSIZE    ;GET THE Y COORDINATE OF THE LOWEST POINT OF THE TANK
@@ -581,7 +581,7 @@ USERINPUT PROC NEAR
       
       ORIENT_UP1:
       ;{
-         CMP    AL, 'q' 
+         CMP    Ah, 4bh 
          JNE    ORIENT_DOWN1
          CMP    ORIENTATION_PLAYER1, 0
          JE     BACKTOMAINLOOP_1
@@ -591,7 +591,7 @@ USERINPUT PROC NEAR
    
       ORIENT_DOWN1:
       ;{
-         CMP    AL, 'e' 
+         CMP    Ah, 4dh 
          JNE    FIREBULLET1
          CMP    ORIENTATION_PLAYER1, 4
          JE     BACKTOMAINLOOP_1
@@ -602,7 +602,7 @@ USERINPUT PROC NEAR
 
       FIREBULLET1:
       ;{
-         CMP AL, 32 
+         CMP Ah, 1ch 
          JNE BACKTOMAINLOOP_1
          CALL FIRE_BULLET_1
          JMP BACKTOMAINLOOP_1
@@ -612,7 +612,7 @@ USERINPUT PROC NEAR
       GUEST_CONTROLS:   
       MOVEUP2:
       ;{
-         CMP    AL, 'w' 
+         CMP    Ah,48h
          JNE    MOVEDOWN2
          MOV    CX, STARTPOS_Y_PLAYER2
          MOV    BX, UPPERBOUND_Y
@@ -625,7 +625,7 @@ USERINPUT PROC NEAR
       
       MOVEDOWN2:
       ;{
-         CMP    AL, 's' 
+         CMP    Ah, 50h
          JNE    ORIENT_UP2
          MOV    CX, STARTPOS_Y_PLAYER2
          ADD    CX, TANKSIZE    ;GET THE Y COORDINATE OF THE LOWEST POINT OF THE TANK
@@ -639,7 +639,7 @@ USERINPUT PROC NEAR
       
       ORIENT_UP2:
       ;{
-         CMP    AL, 'q' 
+         CMP    Ah, 4dh 
          JNE    ORIENT_DOWN2
          CMP    ORIENTATION_PLAYER2, 0
          JE     BACKTOMAINLOOP_2
@@ -649,7 +649,7 @@ USERINPUT PROC NEAR
 
       ORIENT_DOWN2:
       ;{
-         CMP    AL, 'e' 
+         CMP    Ah, 4bh 
          JNE    FIRE_BULLET_2
          CMP    ORIENTATION_PLAYER2, 4
          JE     BACKTOMAINLOOP_2
@@ -659,7 +659,7 @@ USERINPUT PROC NEAR
 
       FIRE_BULLET_2:
       ;{
-         CMP AL , 32
+         CMP Ah , 1ch
          JNE SKIP_FIRE_BULLET_2
          CALL FIRE_BULLET2	         
          SKIP_FIRE_BULLET_2:
