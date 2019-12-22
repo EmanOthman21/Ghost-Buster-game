@@ -282,8 +282,12 @@ MOV PREV_SYS_SECOND,0
          SUB    TIME, 1                    ;DECREASE THE 
          MOV    AX, TIME  ;TO CHECK IF 10 DIVIDES TIME THEN A NEW WAVE OF GHOST APPEAR
          INC    AX
-         MOV    BL, 10
-         DIV    BL
+         CMP level_flag,2
+         JNZ     LL1
+ LL2:    MOV    BL, 10
+         jmp    fl
+ LL1:    MOV    BL, 5
+fl:      DIV    BL
          CMP    AH, 0
          JNE    NOGHOSTWAVE
          ;{ IF IT'S TIME FOR NEW WAVE INITIALIZE THEIR POSITIONS
