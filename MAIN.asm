@@ -2690,8 +2690,8 @@ PLAYER_LOST ENDP
    ;{ IF(USER PRESS ECS)
          CMP     AL,1BH
          JNZ     F1LABEL
-       ;  MOV SEND_VALUE,AL
-       ; CALL SEND_DATA
+         MOV SEND_VALUE,AL
+         CALL SEND_CONFIRM
           ESC_PRESSED: 
             ;{ THIS TO HANDLE FLICKERING
                   MOV    AX, 4F02H 
@@ -2720,8 +2720,8 @@ RECIEVING:
 
    MOV AL, RECEIVE_VALUE
 
-  ; CMP AL,1BH
-  ; JZ ESC_PRESSED
+   CMP AL,1BH
+   JZ ESC_PRESSED
 
    CMP AL,3BH
    JZ F1_RECEIVED
@@ -2980,6 +2980,9 @@ RECEIVE_DATA PROC NEAR
    CMP RECEIVE_VALUE,13
    JZ REC_ENTER
 
+   CMP RECEIVE_VALUE,08H
+   JZ REC_BACKSPACE
+
    CALL SET_CUR_DOWN
    CALL PRINT_DOWN
    CALL MOVE_CUR_DOWN
@@ -2988,6 +2991,22 @@ RECEIVE_DATA PROC NEAR
    REC_ENTER:
    CALL ENTER_RECEIVED_DOWN  
 	RETN 
+   
+   REC_BACKSPACE:
+    CMP DOWN_COLUMN,0
+    JZ MOST_LEFT_DOWN
+    DEC DOWN_COLUMN
+MOST_LEFT_DOWN:    
+    CALL SET_CUR_DOWN
+
+    MOV AH, 2
+    MOV DL, 32
+    INT 21H
+    
+    CALL SET_CUR_DOWN
+   
+   RETN
+   
 	
 	NOTHINGSENT: 
 	MOV RECEIVE_VALUE , 0FFH 
@@ -2997,6 +3016,7 @@ MOV  END_CHAT_REQUEST,1
 RETURN_RECEIVE:
 RETN
 RECEIVE_DATA ENDP
+
 ;-------------------------
 ;SENDING CHAT INVITATION
 ;-------------------------
@@ -3159,6 +3179,9 @@ CALL SPLIT_SCREEN
       CMP AL,13
       JE ENTER_UP
 
+      CMP AL,08H
+      JE BACKSPACE_UP
+
       CALL SET_CUR_UP
       CALL PRINT_UP
       CALL MOVE_CUR_UP
@@ -3166,7 +3189,21 @@ CALL SPLIT_SCREEN
 
       ENTER_UP:
       CALL ENTER_PRESSED_UP
+      JMP RLABEL
+
+      BACKSPACE_UP:
     
+      CMP UP_COLUMN,0
+      JZ MOST_LEFT_UP
+      DEC UP_COLUMN
+   MOST_LEFT_UP:   
+      CALL SET_CUR_UP
+      
+      MOV AH, 2
+      MOV DL, 32
+      INT 21H
+
+      CALL SET_CUR_UP
 
       RLABEL:
 	   CALL RECEIVE_DATA
@@ -3325,26 +3362,19 @@ SCROLL_DOWN ENDP
 ; ;PRINT DATA UP
 ; ;------------------------------------------------
 PRINT_UP PROC NEAR
-MOV AH,09           ;FUNCTION 9 =WRITE CHAR AND ATTRIB AT [PRESET] CURSOR POSITION
-MOV BL,07           ;ATTRIBUTE =7 [AS WE WROTE IN THE UPPER SCREEN ]
-MOV BH,0            ;PAGE ZERO = CURRENT PAGE DISPLAY
-MOV AL,SEND_VALUE   ;ACII OF CHARACTER 
-MOV CX,1            ;SINGLE CHAR TO BE DISPLAYED
-INT 10H 
-RETN 
+   MOV AH, 2
+   MOV DL, SEND_VALUE
+   INT 21H
+   RETN 
 PRINT_UP ENDP
 ; ;------------------------------------------------
 ; ;PRINT DATA DOWN 
 ; ;------------------------------------------------
 PRINT_DOWN  PROC NEAR
-
-MOV AH,09
-MOV BL,70H
-MOV BH,0
-MOV AL,RECEIVE_VALUE
-MOV CX,1
-INT 10H
-RETN 
+   MOV AH, 2
+   MOV DL, RECEIVE_VALUE
+   INT 21H
+   RETN 
 PRINT_DOWN ENDP
 
 ; ;------------------------------------------------------
@@ -3374,7 +3404,9 @@ MOV DL,DOWN_COLUMN
 
 RETN
 ENTER_RECEIVED_DOWN ENDP
-
+; ;---------------------------------------------------------
+; ;ENTER PRESSING
+; ;---------------------------------------------------------
 ENTER_PRESSED_UP PROC NEAR
 
 
@@ -3400,6 +3432,22 @@ MOV DL,UP_COLUMN
 
 RETN 
 ENTER_PRESSED_UP ENDP
+; ;--------------------------------------------------------------
+; ; BACKSPACE PRESSING
+; ;--------------------------------------------------------------
+BACKSPACE_PRESSED_UP PROC NEAR
+
+   MOV BL ,UP_COLUMN
+   DEC BL
+   MOV UP_COLUMN,BL
+   
+    MOV AH, 2
+    MOV DL, 32
+    INT 21H
+
+
+RETN 
+BACKSPACE_PRESSED_UP ENDP
 
 ;---------------------------------------------------------------------------
 ;SEND THIS PLAYER NAME FIRST THEN RECEIVE THE OTHER PLAYER'S NAME
@@ -4493,8 +4541,6 @@ GUEST_RECEIVE_DATA PROC NEAR
 
    ;REC_BUL_Y_11:
    CALL RECEIVE
-   ;CMP RECEIVE_VALUE, 0FFH
-   ;JZ REC_BUL_Y_11
    MOV BL, RECEIVE_VALUE
    MOV BYTE PTR BULLET_1_POSITION_Y, BL
    CALL SEND_A_FLAG
