@@ -283,7 +283,7 @@ MOV PREV_SYS_SECOND,0
          MOV    AX, TIME  ;TO CHECK IF 10 DIVIDES TIME THEN A NEW WAVE OF GHOST APPEAR
          INC    AX
          CMP level_flag,2
-         JNZ     LL1
+         JZ     LL1
  LL2:    MOV    BL, 10
          jmp    fl
  LL1:    MOV    BL, 5
