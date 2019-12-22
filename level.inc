@@ -37,9 +37,7 @@ LOCAL OUTERLOOP, INNERLOOP, PRINT1, PRINT2, PRINT3
                     MOV     DX, 1B34H
                     INT     10H
                 ;}
-                cmp level_flag,1
-      jz rgm1
-      cmp level_flag,2
+     
          jmp skip99
     rc_gm:  jmp GAME_REJECTED
       skip99:

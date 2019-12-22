@@ -3663,11 +3663,11 @@ SEND_GAME_INVITATION PROC NEAR
 
    GAME_ACCEPTED:
       ;BEFORE STARTING THE GAME, MAKE THE SENDING PLAYER THE HOST
-      
+      cmp level_flag,1
+      jz rgm1
+      cmp level_flag,2
       jz rgm2
       level
-   
-     
       stay: mov ah,1
       int 16h
       jz stay
